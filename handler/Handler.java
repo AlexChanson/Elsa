@@ -1,5 +1,5 @@
 package handler;
 
-interface Handler<T> {
-    public T handle(Command command);
+public interface Handler<T> {
+    T handle(Command command);
 }
