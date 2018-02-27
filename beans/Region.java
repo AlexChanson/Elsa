@@ -6,6 +6,7 @@ import dao.Key;
 
 @Entity(tableName = "Regions")
 public class Region {
+
     @Key(columnName = "REG_NUM")
     private int reg_num;
     private String reg_name;

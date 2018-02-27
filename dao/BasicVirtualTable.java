@@ -3,6 +3,7 @@ package dao;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Modifier;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -75,8 +76,35 @@ public class BasicVirtualTable<T> implements VirtualTable<T>{
 
     }
 
+    /**
+     * Adds the object to the table
+     * @param o the object to insert
+     */
     @Override
     public void add(T o) {
+        StringBuilder querry = new StringBuilder("INSERT INTO " + tableName + " VALUE (");
+        Class c = o.getClass();
+        for (Field field : c.getDeclaredFields()){
+            if (! Modifier.isTransient(field.getModifiers())){
+                field.setAccessible(true);
+                try {
+                    querry.append(field.get(o).getClass().equals(String.class) ? "\'" + field.get(o) + "\'" : field.get(o));
+                    querry.append(",");
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        querry.setCharAt(querry.lastIndexOf(","), ')');
+        querry.append(";");
+
+
+        try {
+            Statement statement = MYSQL.getConnection().createStatement();
+            statement.executeUpdate(querry.toString());
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
 
     }
 
