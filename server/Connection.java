@@ -41,6 +41,8 @@ class Connection implements Runnable {
                     ans.setLen(Math.toIntExact(new File(wwwDir + path).length()));
                 }
 
+            } else if (requete.isPost()){
+                //TODO handle post stuff
             }
 
             //Sending the Header

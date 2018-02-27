@@ -20,7 +20,7 @@ public class HttpAns {
     public HttpAns() {
         header.add(_200);
         header.add("Date: " + new Date());
-        header.add("Server: nfa016Server/1.0");
+        header.add("Server: Elsa/1.0");
         header.add("Content-type: text/html");
     }
 
