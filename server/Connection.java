@@ -1,16 +1,31 @@
 package server;
 
+import dao.MYSQL;
+
 import java.net.*;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Properties;
 import java.util.regex.Pattern;
 
 class Connection implements Runnable {
 
     private Socket socket;
     //Define the www directory (like wamp), where the website root is. Put your index.html in it
-    public static final String wwwDir = System.getProperty("user.dir") + "/www/";
+    public static String wwwDir = System.getProperty("user.dir") + "/www/";
+    static {
+        InputStream input = Connection.class.getClassLoader().getResourceAsStream("config.properties");
+        if (input != null) {
+            try {
+                Properties properties = new Properties();
+                properties.load(input);
+                wwwDir = properties.getProperty("webDir");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
     Connection(Socket socket) {
         this.socket = socket;
@@ -64,12 +79,12 @@ class Connection implements Runnable {
         }
     }
 
-    private void sendHeader(PrintStream out, HttpAns ans) {
+    private static void sendHeader(PrintStream out, HttpAns ans) {
         out.print(ans.build());
         out.println();
     }
 
-    private void sendBinaryFileStream(File f, PrintStream out) {
+    private static void sendBinaryFileStream(File f, PrintStream out) {
         FileInputStream fis;
         try {
             // Java 9
