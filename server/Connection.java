@@ -27,39 +27,46 @@ class Connection implements Runnable {
 
             // Préparation de la réponse
             HttpAns ans = new HttpAns();
-            boolean fileOK = false;
             String path = requete.getPath().toLowerCase();
 
             if (requete.isGet()){
+                boolean fileOK = false;
                 if (path.equals("/"))
                     path = "/index.html";
 
-                ans.setType(getFileType(path));
+                //ans.setType(getFileType(path));
 
                 if (Files.exists(Paths.get(wwwDir + path))){
                     fileOK = true;
                     ans.setLen(Math.toIntExact(new File(wwwDir + path).length()));
+                    ans.setType(Files.probeContentType(Paths.get(wwwDir + path)));
+                }
+
+                sendHeader(out, ans);
+
+                if (fileOK){
+                    sendBinaryFileStream(new File(wwwDir + path), out);
                 }
 
             } else if (requete.isPost()){
                 //TODO handle post stuff
+                if (path.startsWith("/api")){
+                    //redirect to api
+                }else {
+
+                }
             }
 
-            //Sending the Header
-            out.print(ans.build());
-            out.println();
-
-            //Sending the body
-            if (requete.isGet()){
-                if (fileOK){
-                    sendBinaryFileStream(new File(wwwDir + path), out);
-                }            }
-
-
+            // Close connection
             socket.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void sendHeader(PrintStream out, HttpAns ans) {
+        out.print(ans.build());
+        out.println();
     }
 
     private void sendBinaryFileStream(File f, PrintStream out) {
@@ -83,7 +90,7 @@ class Connection implements Runnable {
         }
     }
 
-    private String getFileType(String url){
+    private static String getFileType(String url){
         String ans = "";
         if (Pattern.matches("\\^(/(\\S)+)+\\.html", url))
             ans = HttpAns._html;
@@ -97,6 +104,7 @@ class Connection implements Runnable {
             ans = HttpAns._mp4;
         else if (Pattern.matches("\\^(/(\\S)+)+\\.png", url))
             ans = HttpAns._png;
+        System.err.println("Content type = " + ans);
         return ans;
     }
 }

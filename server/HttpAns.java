@@ -7,6 +7,7 @@ public class HttpAns {
     public static final String
             _404 = "HTTP/1.0 404 NOT FOUND",
             _200 = "HTTP/1.0 200 OK",
+            _500 = "Internal Server Error",
             _html = "text/html",
             _jpeg = "image/jpeg",
             _js = "application/javascript",
@@ -26,12 +27,12 @@ public class HttpAns {
 
 
     public String build(){
-        String r = "";
+        StringBuilder r = new StringBuilder();
         for (String s : header) {
-            r += s + '\n';
+            r.append(s).append('\n');
         }
-        r += "Content-length: " + len + '\n';
-        return r;
+        r.append("Content-length: ").append(len).append('\n');
+        return r.toString();
     }
 
     public HttpAns setCode(String code){
