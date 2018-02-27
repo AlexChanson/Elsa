@@ -18,7 +18,7 @@ public class MYSQL {
 
     private static void init() {
         InputStream input;
-        input = MYSQL.class.getClassLoader().getResourceAsStream("sql.properties");
+        input = MYSQL.class.getClassLoader().getResourceAsStream("config.properties");
         if (input != null) {
             try {
                 Properties properties = new Properties();

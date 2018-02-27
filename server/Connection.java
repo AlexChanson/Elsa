@@ -1,16 +1,31 @@
 package server;
 
+import dao.MYSQL;
+
 import java.net.*;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Properties;
 import java.util.regex.Pattern;
 
 class Connection implements Runnable {
 
     private Socket socket;
     //Define the www directory (like wamp), where the website root is. Put your index.html in it
-    public static final String wwwDir = System.getProperty("user.dir") + "/www/";
+    public static String wwwDir = System.getProperty("user.dir") + "/www/";
+    static {
+        InputStream input = Connection.class.getClassLoader().getResourceAsStream("config.properties");
+        if (input != null) {
+            try {
+                Properties properties = new Properties();
+                properties.load(input);
+                wwwDir = properties.getProperty("webDir");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
     Connection(Socket socket) {
         this.socket = socket;
@@ -27,42 +42,49 @@ class Connection implements Runnable {
 
             // Préparation de la réponse
             HttpAns ans = new HttpAns();
-            boolean fileOK = false;
             String path = requete.getPath().toLowerCase();
 
             if (requete.isGet()){
+                boolean fileOK = false;
                 if (path.equals("/"))
                     path = "/index.html";
 
-                ans.setType(getFileType(path));
+                //ans.setType(getFileType(path));
 
                 if (Files.exists(Paths.get(wwwDir + path))){
                     fileOK = true;
                     ans.setLen(Math.toIntExact(new File(wwwDir + path).length()));
+                    ans.setType(Files.probeContentType(Paths.get(wwwDir + path)));
+                }
+
+                sendHeader(out, ans);
+
+                if (fileOK){
+                    sendBinaryFileStream(new File(wwwDir + path), out);
                 }
 
             } else if (requete.isPost()){
                 //TODO handle post stuff
+                if (path.startsWith("/api")){
+                    //redirect to api
+                }else {
+
+                }
             }
 
-            //Sending the Header
-            out.print(ans.build());
-            out.println();
-
-            //Sending the body
-            if (requete.isGet()){
-                if (fileOK){
-                    sendBinaryFileStream(new File(wwwDir + path), out);
-                }            }
-
-
+            // Close connection
             socket.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private void sendBinaryFileStream(File f, PrintStream out) {
+    private static void sendHeader(PrintStream out, HttpAns ans) {
+        out.print(ans.build());
+        out.println();
+    }
+
+    private static void sendBinaryFileStream(File f, PrintStream out) {
         FileInputStream fis;
         try {
             // Java 9
@@ -83,7 +105,7 @@ class Connection implements Runnable {
         }
     }
 
-    private String getFileType(String url){
+    private static String getFileType(String url){
         String ans = "";
         if (Pattern.matches("\\^(/(\\S)+)+\\.html", url))
             ans = HttpAns._html;
@@ -97,6 +119,7 @@ class Connection implements Runnable {
             ans = HttpAns._mp4;
         else if (Pattern.matches("\\^(/(\\S)+)+\\.png", url))
             ans = HttpAns._png;
+        System.err.println("Content type = " + ans);
         return ans;
     }
 }
