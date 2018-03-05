@@ -9,11 +9,13 @@ import java.util.Map;
 
 public class HttpReq {
     private Map<String, String> header;
+    private Map<String, String> urlParams;
     private String head;
     private String body;
 
     public HttpReq() {
         header = new HashMap<>();
+        urlParams = new HashMap<>();
         body = "";
     }
 
@@ -23,6 +25,15 @@ public class HttpReq {
             BufferedReader br = new BufferedReader(new InputStreamReader(input));
             String line = br.readLine();
             head = line;
+
+            // Decoding parameters from url
+            int n = getPath().indexOf('?');
+            String params = getPath().substring(n+1);
+            String[] temp = params.split("&");
+            for (String s : temp) {
+                String[] p = s.split("=");
+                urlParams.put(p[0], p[1]);
+            }
 
             // Reading the header
             while (!line.equals("")) { // The empty line "" is the delimiter between header and body
@@ -81,6 +92,14 @@ public class HttpReq {
 
     String getVersion(){
         return head.split(" ")[2];
+    }
+
+    Map<String,String> getParameters(){
+        return urlParams;
+    }
+
+    String getParameter(String key){
+        return urlParams.get(key);
     }
 
     @Override
