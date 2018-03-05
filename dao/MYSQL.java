@@ -1,5 +1,7 @@
 package dao;
 
+import server.Server;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
@@ -8,13 +10,8 @@ import java.sql.SQLException;
 import java.util.Properties;
 
 public class MYSQL {
-    private static Connection connection;
+    private static Connection connection = null;
     private static String url = "jdbc:mysql://localhost:3306", user = "root", password = "root";
-
-    static {
-        init();
-    }
-
 
     private static void init() {
         InputStream input;
@@ -41,11 +38,18 @@ public class MYSQL {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+
+        if (Server.jdbc != null)
+            url = Server.jdbc;
+        if (Server.dbuser != null)
+            user = Server.dbuser;
+        if (Server.dbpass != null)
+            password = Server.dbpass;
     }
 
     public static Connection getConnection() {
         try {
-            if (connection.isClosed()) {
+            if (connection == null || connection.isClosed()) {
                 connection = null;
                 init();
                 return connection;
