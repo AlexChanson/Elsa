@@ -28,12 +28,15 @@ public class HttpReq {
 
             // Decoding parameters from url
             int n = getPath().indexOf('?');
-            String params = getPath().substring(n+1);
-            String[] temp = params.split("&");
-            for (String s : temp) {
-                String[] p = s.split("=");
-                urlParams.put(p[0], p[1]);
+            if (n != -1){
+                String params = getPath().substring(n+1);
+                String[] temp = params.split("&");
+                for (String s : temp) {
+                    String[] p = s.split("=");
+                    urlParams.put(p[0], p[1]);
+                }
             }
+
 
             // Reading the header
             while (!line.equals("")) { // The empty line "" is the delimiter between header and body
