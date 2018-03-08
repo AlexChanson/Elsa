@@ -1,5 +1,8 @@
 package server;
 
+import beans.Region;
+import dao.BasicVirtualTable;
+
 import java.net.*;
 import java.io.*;
 

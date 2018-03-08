@@ -10,6 +10,8 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Stream;
 
 public class BasicVirtualTable<T> implements VirtualTable<T>{
     private Class myClass;
@@ -37,12 +39,7 @@ public class BasicVirtualTable<T> implements VirtualTable<T>{
     }
 
     @Override
-    public void commit() {
-
-    }
-
-    @Override
-    public void rebase() {
+    public void delete(Object key) {
 
     }
 
@@ -113,7 +110,7 @@ public class BasicVirtualTable<T> implements VirtualTable<T>{
 
     }
 
-    List<T> getAll() {
+    public List<T> getAll() {
         try {
             //Reference to your connexion singleton goes here
             Statement statement = MYSQL.getConnection().createStatement();
@@ -139,6 +136,34 @@ public class BasicVirtualTable<T> implements VirtualTable<T>{
         } catch (SQLException e) {
             System.err.printf("Error on importing table : %s, error : %s.%n", tableName, e.getMessage());
             return null;
+        }
+    }
+
+    public Stream<T> getStream(){
+        Function<ResultSet, T> onNext = resultSet -> {
+            try {
+                int paramsNb = myConstructor.getParameterCount();
+                Object[] params = new Object[paramsNb];
+                for (int i = 1; i <= paramsNb; ++i) {
+                    params[i - 1] = resultSet.getObject(i);
+                }
+                return (T) myConstructor.newInstance(params);
+            } catch (SQLException | IllegalAccessException | InstantiationException | InvocationTargetException e){
+                e.printStackTrace();
+                return null;
+            }
+
+
+        };
+
+        try {
+            Statement statement = MYSQL.getConnection().createStatement();
+            statement.execute("SELECT * from " + tableName + ";");
+            ResultSet resultSet = statement.getResultSet();
+            return new ResultSetIterable<T>(resultSet, onNext).stream();
+        } catch (SQLException e){
+            e.printStackTrace();
+            return new ArrayList<T>().stream();
         }
     }
 
