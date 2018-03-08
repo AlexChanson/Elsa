@@ -33,18 +33,20 @@ public class MYSQL {
             e.printStackTrace();
         }
 
-        try {
-            connection = DriverManager.getConnection(url, user, password);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
         if (Server.jdbc != null)
             url = Server.jdbc;
         if (Server.dbuser != null)
             user = Server.dbuser;
         if (Server.dbpass != null)
             password = Server.dbpass;
+
+        try {
+            System.out.println(url + user + password);
+            connection = DriverManager.getConnection(url, user, password);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
     }
 
     public static Connection getConnection() {
