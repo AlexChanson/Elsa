@@ -119,4 +119,8 @@ public class HttpReq {
         System.out.println(this.toString());
         System.out.println(" ### ### ### ### ###");
     }
+
+    public String getBody() {
+        return body;
+    }
 }

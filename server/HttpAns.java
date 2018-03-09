@@ -6,6 +6,7 @@ import java.util.Date;
 public class HttpAns {
     public static final String
             _404 = "HTTP/1.0 404 NOT FOUND",
+            _403 = "Forbidden",
             _200 = "HTTP/1.0 200 OK",
             _500 = "Internal Server Error",
             _html = "text/html",
@@ -13,6 +14,7 @@ public class HttpAns {
             _js = "application/javascript",
             _mp4 = "application/mp4",
             _png = "image/png",
+            _json = "application/json",
             _css = "text/css";
 
     private ArrayList<String> header = new ArrayList<>();

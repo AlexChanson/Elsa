@@ -1,7 +1,13 @@
 package server;
 
-import java.net.*;
+import beans.Token;
+import com.google.gson.Gson;
+import dao.BasicVirtualTable;
+import handler.Command;
+import handler.PipelineFactory;
+import handler.RequestResult;
 import java.io.*;
+import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Properties;
@@ -64,9 +70,32 @@ class Connection implements Runnable {
             } else if (requete.isPost()){
                 //TODO handle post stuff
                 if (path.startsWith("/api")){
-                    //redirect to api
-                }else {
+                    // Verify API Key
+                    BasicVirtualTable<Token> tok = new BasicVirtualTable<>(Token.class);
+                    String token = requete.getParameter("key");
+                    if (tok.find(token) != null){
+                        // Redirect to api
+                        Gson gson = new Gson();
+                        Command cmd = gson.fromJson(requete.getBody(), Command.class);
+                        try {
+                            RequestResult result = PipelineFactory.getPipeline().handle(cmd);
+                            ans.setCode(HttpAns._200);
+                            ans.setType(HttpAns._json);
+                            ans.setLen(result.toJson().getBytes().length);
+                            out.print(ans.build());
+                            out.print("\n");
+                            out.print(result.toJson());
+                        }catch (Exception e){
+                            ans.setCode(HttpAns._500);
+                            out.print(ans.build());
+                        }
 
+                    }else {
+                        ans.setCode(HttpAns._403);
+                        out.print(ans.build());
+                    }
+                }else {
+                    //Handle other post requests
                 }
             }
 
@@ -103,6 +132,7 @@ class Connection implements Runnable {
         }
     }
 
+    @Deprecated
     private static String getFileType(String url){
         String ans = "";
         if (Pattern.matches("\\^(/(\\S)+)+\\.html", url))
