@@ -30,6 +30,7 @@ public class HttpAns {
 
     public String build(){
         StringBuilder r = new StringBuilder();
+        header.set(1, "Date: " + new Date());
         for (String s : header) {
             r.append(s).append('\n');
         }

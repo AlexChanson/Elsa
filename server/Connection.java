@@ -60,6 +60,8 @@ class Connection implements Runnable {
                     fileOK = true;
                     ans.setLen(Math.toIntExact(new File(wwwDir + path).length()));
                     ans.setType(Files.probeContentType(Paths.get(wwwDir + path)));
+                }else {
+                    ans.setCode(HttpAns._404);
                 }
 
                 sendHeader(out, ans);
@@ -80,25 +82,22 @@ class Connection implements Runnable {
                         Command cmd = gson.fromJson(requete.getBody(), Command.class);
                         try {
                             RequestResult result = PipelineFactory.getPipeline().handle(cmd);
-                            ans.setCode(HttpAns._200);
-                            ans.setType(HttpAns._json);
-                            ans.setLen(result.toJson().getBytes().length);
+                            ans.setCode(HttpAns._200).setType(HttpAns._json).setLen(result.toJson().length());
                             out.print(ans.build());
                             out.print("\n");
                             out.print(result.toJson());
                         }catch (Exception e){
                             // Exception thrown in the pipeline returning 500 error code to client
-                            ans.setCode(HttpAns._500);
-                            out.print(ans.build());
+                            String err = "{\"error\":\"" + e.toString().replace("\n", "\t")+ "\"}";
+                            ans.setCode(HttpAns._500).setLen(err.length());
+                            out.print(ans.build() + "\n" + err);
                         }
 
                     }else {
                         // Api Key is not valid
-                        ans.setCode(HttpAns._403);
-                        ans.setType(HttpAns._json);
-                        out.print(ans.build());
-                        out.print("\n");
-                        out.print("{\"error\":\"Invalid API Key !\"}");
+                        String err = "{\"error\":\"Invalid API Key !\"}";
+                        ans.setCode(HttpAns._403).setType(HttpAns._json).setLen(err.length());
+                        out.print(ans.build() + "\n" + err);
                     }
                 }else {
                     //Handle other post requests

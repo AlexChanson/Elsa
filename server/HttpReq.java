@@ -27,11 +27,14 @@ public class HttpReq {
             if (line == null)
                 return;
             head = line;
+
             System.out.println("DEBUG: " + head);
+
             // Decoding parameters from url
             int n = getPath().indexOf('?');
             if (n != -1){
                 String params = getPath().substring(n+1);
+                head = head.replace("?" + params, "");
                 String[] temp = params.split("&");
                 for (String s : temp) {
                     String[] p = s.split("=");
@@ -51,7 +54,7 @@ public class HttpReq {
             }
             // Reading the body if any
             if (header.get("Content-Length") != null){
-                int len = Integer.parseInt(header.get("Content-Length"));
+                int len = Integer.parseInt(header.get("Content-Length").replace(" ", ""));
                 byte[] buffer = new byte[len];
                 input.read(buffer, 0, len);
                 body = new String(buffer);
