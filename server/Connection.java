@@ -16,7 +16,8 @@ import java.util.regex.Pattern;
 class Connection implements Runnable {
 
     private Socket socket;
-    //Define the www directory (like wamp), where the website root is. Put your index.html in it
+
+    //Web directory definition
     public static String wwwDir = System.getProperty("user.dir") + "/www/";
     static {
         InputStream input = Connection.class.getClassLoader().getResourceAsStream("config.properties");

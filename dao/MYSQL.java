@@ -41,7 +41,6 @@ public class MYSQL {
             password = Server.dbpass;
 
         try {
-            System.out.println(url + user + password);
             connection = DriverManager.getConnection(url, user, password);
         } catch (SQLException e) {
             e.printStackTrace();

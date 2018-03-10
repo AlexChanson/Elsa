@@ -59,6 +59,8 @@ public class BasicVirtualTable<T> implements VirtualTable<T>{
             ResultSet resultSet = statement.getResultSet();
             int paramsNb = myConstructor.getParameterCount();
             params = new Object[paramsNb];
+            if (!resultSet.next())
+                return null;
             for (int i = 1; i <= paramsNb; ++i)
                 params[i - 1] = resultSet.getObject(i);
             return (T) myConstructor.newInstance(params);

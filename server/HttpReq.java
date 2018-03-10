@@ -10,7 +10,7 @@ import java.util.Map;
 public class HttpReq {
     private Map<String, String> header;
     private Map<String, String> urlParams;
-    private String head;
+    private String head = "ERROR";
     private String body;
 
     public HttpReq() {
@@ -24,8 +24,10 @@ public class HttpReq {
         try {
             BufferedReader br = new BufferedReader(new InputStreamReader(input));
             String line = br.readLine();
+            if (line == null)
+                return;
             head = line;
-
+            System.out.println("DEBUG: " + head);
             // Decoding parameters from url
             int n = getPath().indexOf('?');
             if (n != -1){
@@ -90,7 +92,12 @@ public class HttpReq {
     }
 
     String getPath(){
-        return head.split(" ")[1];
+        try {
+            return head.split(" ")[1];
+        }catch (NullPointerException | ArrayIndexOutOfBoundsException e){
+            return "/";
+        }
+
     }
 
     String getVersion(){
