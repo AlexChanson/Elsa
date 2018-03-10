@@ -89,7 +89,7 @@ class Connection implements Runnable {
                         }catch (Exception e){
                             // Exception thrown in the pipeline returning 500 error code to client
                             String err = "{\"error\":\"" + e.toString().replace("\n", "\t")+ "\"}";
-                            ans.setCode(HttpAns._500).setLen(err.length());
+                            ans.setCode(HttpAns._500).setLen(err.length()).setType(HttpAns._json);
                             out.print(ans.build() + "\n" + err);
                         }
 

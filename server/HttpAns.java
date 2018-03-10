@@ -6,9 +6,9 @@ import java.util.Date;
 public class HttpAns {
     public static final String
             _404 = "HTTP/1.0 404 NOT FOUND",
-            _403 = "Forbidden",
+            _403 = "HTTP/1.0 403 Forbidden",
             _200 = "HTTP/1.0 200 OK",
-            _500 = "Internal Server Error",
+            _500 = "HTTP/1.0 500 Internal Server Error",
             _html = "text/html",
             _jpeg = "image/jpeg",
             _js = "application/javascript",
