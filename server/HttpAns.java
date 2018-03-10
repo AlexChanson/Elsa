@@ -3,6 +3,10 @@ package server;
 import java.util.ArrayList;
 import java.util.Date;
 
+/**
+ * @author Alexandre Chanson
+ * This class is used to build the HTTP Answer Header
+ */
 public class HttpAns {
     public static final String
             _404 = "HTTP/1.0 404 NOT FOUND",

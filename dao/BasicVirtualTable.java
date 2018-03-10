@@ -13,6 +13,11 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
+/**
+ * @author Alexandre Chanson
+ * A simple polymorphic DAO only works with well defined tables (Primary key must exist)
+ * @param <T> The type of the objet held in the table
+ */
 public class BasicVirtualTable<T> implements VirtualTable<T>{
     private Class myClass;
     private String tableName;
@@ -40,7 +45,7 @@ public class BasicVirtualTable<T> implements VirtualTable<T>{
 
     @Override
     public void delete(Object key) {
-
+        //TODO this one is pretty easy
     }
 
     @Override
@@ -109,9 +114,13 @@ public class BasicVirtualTable<T> implements VirtualTable<T>{
 
     @Override
     public void update(Object key, T o) {
-
+        //TODO update method
     }
 
+    /**
+     * Recover the whole table
+     * @return The entire table contents as a List
+     */
     public List<T> getAll() {
         try {
             //Reference to your connexion singleton goes here
@@ -141,6 +150,10 @@ public class BasicVirtualTable<T> implements VirtualTable<T>{
         }
     }
 
+    /**
+     * Fetches all the table elements in a more civilized manner
+     * @return A stream tied to the cursor
+     */
     public Stream<T> getStream(){
         Function<ResultSet, T> onNext = resultSet -> {
             try {
@@ -169,6 +182,12 @@ public class BasicVirtualTable<T> implements VirtualTable<T>{
         }
     }
 
+    /**
+     * Internal method used to fetched the annotated constructor of a class
+     * @param target the Class we need a constructor for
+     * @return The constructor declared using @DaoConstructor annotation
+     * @throws NoSuchMethodException if there is no constructor annotated
+     */
     private static Constructor getConstructor(Class target) throws NoSuchMethodException {
         for (Constructor c :
                 target.getConstructors()) {
