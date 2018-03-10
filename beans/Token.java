@@ -7,17 +7,17 @@ import dao.Key;
 @Entity(tableName = "Tokens")
 public class Token {
 
-    private int user_id;
+    private long user_id;
     @Key(columnName = "token")
     private String token;
 
     @DaoConstructor
-    public Token(int user_id, String token) {
+    public Token(long user_id, String token) {
         this.user_id = user_id;
         this.token = token;
     }
 
-    public int getUser_id() {
+    public long getUser_id() {
         return user_id;
     }
 
