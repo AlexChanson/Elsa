@@ -9,11 +9,19 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
 
+/**
+ * A simple Singleton to hold our connection to the database
+ */
 public class MYSQL {
     private static Connection connection = null;
     private static String url = "jdbc:mysql://localhost:3306", user = "root", password = "root";
 
+    /**
+     * This methods instantiates the Singleton
+     */
     private static void init() {
+        // We try to extract the parameters from the config files
+        // Only works if app is packaged in a jar file
         InputStream input;
         input = MYSQL.class.getClassLoader().getResourceAsStream("config.properties");
         if (input != null) {
@@ -33,6 +41,7 @@ public class MYSQL {
             e.printStackTrace();
         }
 
+        // We recover the command line arguments if any
         if (Server.jdbc != null)
             url = Server.jdbc;
         if (Server.dbuser != null)
