@@ -68,7 +68,7 @@ class Connection implements Runnable {
                 }
 
             } else if (requete.isPost()){
-                //TODO handle post stuff
+                // Handle API Request
                 if (path.startsWith("/api")){
                     // Verify API Key
                     BasicVirtualTable<Token> tok = new BasicVirtualTable<>(Token.class);
@@ -86,13 +86,18 @@ class Connection implements Runnable {
                             out.print("\n");
                             out.print(result.toJson());
                         }catch (Exception e){
+                            // Exception thrown in the pipeline returning 500 error code to client
                             ans.setCode(HttpAns._500);
                             out.print(ans.build());
                         }
 
                     }else {
+                        // Api Key is not valid
                         ans.setCode(HttpAns._403);
+                        ans.setType(HttpAns._json);
                         out.print(ans.build());
+                        out.print("\n");
+                        out.print("{\"error\":\"Invalid API Key !\"}");
                     }
                 }else {
                     //Handle other post requests
