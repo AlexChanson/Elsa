@@ -53,4 +53,30 @@ public class Commune {
         this.nb_etudiants = nb_etudiants;
         this.nb_etablissements = nb_etablissements;
     }
+
+    @Override
+    public String toString() {
+        return "Commune{" +
+                "code_insee='" + code_insee + '\'' +
+                ", nom='" + nom + '\'' +
+                ", num_dep='" + num_dep + '\'' +
+                ", superficie=" + superficie +
+                ", actifs_2010=" + actifs_2010 +
+                ", med_r_f_uc_2010=" + med_r_f_uc_2010 +
+                ", pop_2015=" + pop_2015 +
+                ", evolution_pop='" + evolution_pop + '\'' +
+                ", indice_demo=" + indice_demo +
+                ", score_urbanite=" + score_urbanite +
+                ", nb_actifs_2015=" + nb_actifs_2015 +
+                ", nb_actifs_sal_2015=" + nb_actifs_sal_2015 +
+                ", nb_actifs_nonSal_2015=" + nb_actifs_nonSal_2015 +
+                ", dyn_demo_insee=" + dyn_demo_insee +
+                ", nb_inst_pub=" + nb_inst_pub +
+                ", score_croiss_pop=" + score_croiss_pop +
+                ", env_demo='" + env_demo + '\'' +
+                ", fidelite='" + fidelite + '\'' +
+                ", nb_etudiants=" + nb_etudiants +
+                ", nb_etablissements=" + nb_etablissements +
+                '}';
+    }
 }
