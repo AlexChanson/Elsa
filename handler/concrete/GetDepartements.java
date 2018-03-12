@@ -1,6 +1,6 @@
 package handler.concrete;
 
-import beans.Region;
+import beans.Departement;
 import dao.BasicVirtualTable;
 import handler.Command;
 import handler.Handler;
@@ -9,20 +9,20 @@ import handler.Utility;
 import java.util.List;
 
 
-public class GetRegions implements Handler<RequestResult> {
+public class GetDepartements implements Handler<RequestResult> {
     @Override
     public RequestResult handle(Command command) {
-        if (command.getParameter("type") != null && command.getParameter("type").equals("getRegions"))
+        if (command.getParameter("type") != null && command.getParameter("type").equals("getDepartements"))
             return process();
         return null;
     }
 
     private RequestResult process(){
-        List<Region> regions = (new BasicVirtualTable<Region>(Region.class)).getAll();
+        List<Departement> Departements = (new BasicVirtualTable<Departement>(Departement.class)).getAll();
         RequestResult result = new RequestResult() {
             @Override
             public String toJson() {
-                return Utility.gson.toJson(regions);
+                return Utility.gson.toJson(Departements);
             }
         };
         return result;
