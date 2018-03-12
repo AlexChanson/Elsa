@@ -16,6 +16,19 @@ public class MYSQL {
     private static Connection connection = null;
     private static String url = "jdbc:mysql://localhost:3306", user = "root", password = "root";
 
+    public static void setupAuth(String url_, String user_, String password_){
+        if (url_ != null){
+            url = url_;
+        }
+        if (user_ != null){
+            user = user_;
+        }
+        if (password_ != null){
+            password = password_;
+        }
+        connection = null;
+    }
+
     /**
      * This methods instantiates the Singleton
      */
