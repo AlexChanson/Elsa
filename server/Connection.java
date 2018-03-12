@@ -79,7 +79,7 @@ class Connection implements Runnable {
                     if (tok.find(token) != null){
                         // Redirect to api
                         Gson gson = new Gson();
-                        Command cmd = gson.fromJson(requete.getBody(), Command.class);
+                        Command cmd = gson.fromJson("{ \"parameters\" : " + requete.getBody() + " }", Command.class);
                         try {
                             RequestResult result = PipelineFactory.getPipeline().handle(cmd);
                             ans.setCode(HttpAns._200).setType(HttpAns._json).setLen(result.toJson().length());

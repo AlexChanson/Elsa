@@ -55,8 +55,8 @@ public class HttpReq {
             // Reading the body if any
             if (header.get("Content-Length") != null){
                 int len = Integer.parseInt(header.get("Content-Length").replace(" ", ""));
-                byte[] buffer = new byte[len];
-                input.read(buffer, 0, len);
+                char[] buffer = new char[len];
+                br.read(buffer);
                 body = new String(buffer);
             }
 
