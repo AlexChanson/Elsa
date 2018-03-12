@@ -7,4 +7,12 @@ public class Command {
 
     public Command() {
     }
+
+    public Object getParameter(String key) {
+        return parameters.get(key);
+    }
+
+    public HashMap<String, Object> getParameters() {
+        return parameters;
+    }
 }

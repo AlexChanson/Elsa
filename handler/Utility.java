@@ -1,10 +1,14 @@
 package handler;
 
+import com.google.gson.Gson;
+
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 public class Utility {
+    public static Gson gson = new Gson();
+
     public static String hashSHA256(String input){
         String hash = "";
 
