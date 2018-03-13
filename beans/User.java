@@ -9,18 +9,23 @@ import java.sql.Timestamp;
 @Entity(tableName = "Users")
 public class User {
     @Key(columnName = "user_id")
-    private int user_id;
+    transient private int user_id;
     private String email, nom, prenom, pwd_hash;
-    private Timestamp last_login;
 
     @DaoConstructor
-    public User(int user_id, String email, String nom, String prenom, String pwd_hash, Timestamp last_login) {
+    public User(int user_id, String email, String nom, String prenom, String pwd_hash) {
         this.user_id = user_id;
         this.email = email;
         this.nom = nom;
         this.prenom = prenom;
         this.pwd_hash = pwd_hash;
-        this.last_login = last_login;
+    }
+
+    public User(String email, String nom, String prenom, String pwd_hash) {
+        this.email = email;
+        this.nom = nom;
+        this.prenom = prenom;
+        this.pwd_hash = pwd_hash;
     }
 
     public int getUser_id() {
@@ -43,7 +48,4 @@ public class User {
         return pwd_hash;
     }
 
-    public Timestamp getLast_login() {
-        return last_login;
-    }
 }
