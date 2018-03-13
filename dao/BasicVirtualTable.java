@@ -86,14 +86,17 @@ public class BasicVirtualTable<T> implements VirtualTable<T>{
      */
     @Override
     public void add(T o) {
-        StringBuilder querry = new StringBuilder("INSERT INTO " + tableName + " VALUE (");
         Class c = o.getClass();
+        StringBuilder values = new StringBuilder();
+        StringBuilder querry = new StringBuilder("INSERT INTO " + tableName + " (%field_names% VALUES (");
         for (Field field : c.getDeclaredFields()){
             if (! Modifier.isTransient(field.getModifiers())){
                 field.setAccessible(true);
                 try {
                     querry.append(field.get(o).getClass().equals(String.class) ? "\'" + field.get(o) + "\'" : field.get(o));
                     querry.append(",");
+                    values.append(field.getName());
+                    values.append(",");
                 } catch (IllegalAccessException e) {
                     e.printStackTrace();
                 }
@@ -101,11 +104,11 @@ public class BasicVirtualTable<T> implements VirtualTable<T>{
         }
         querry.setCharAt(querry.lastIndexOf(","), ')');
         querry.append(";");
-
+        values.setCharAt(values.lastIndexOf(","), ')');
 
         try {
             Statement statement = MYSQL.getConnection().createStatement();
-            statement.executeUpdate(querry.toString());
+            statement.executeUpdate(querry.toString().replace("%field_names%", values.toString()));
         } catch (SQLException e) {
             e.printStackTrace();
         }

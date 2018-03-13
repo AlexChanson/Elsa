@@ -1,17 +1,19 @@
 package server;
 
 import beans.Token;
+import beans.User;
 import com.google.gson.Gson;
 import dao.BasicVirtualTable;
 import handler.Command;
 import handler.PipelineFactory;
 import handler.RequestResult;
+import handler.Utility;
 import java.io.*;
 import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.Properties;
-import java.util.regex.Pattern;
 
 class Connection implements Runnable {
 
@@ -82,6 +84,7 @@ class Connection implements Runnable {
                         Command cmd = gson.fromJson("{ \"parameters\" : " + requete.getBody() + " }", Command.class);
                         try {
                             RequestResult result = PipelineFactory.getPipeline().handle(cmd);
+                            //TODO Check if result is null (means nothing in the pipeline to handle the request)
                             ans.setCode(HttpAns._200).setType(HttpAns._json).setLen(result.toJson().length());
                             out.print(ans.build());
                             out.print("\n");
@@ -99,6 +102,10 @@ class Connection implements Runnable {
                         ans.setCode(HttpAns._403).setType(HttpAns._json).setLen(err.length());
                         out.print(ans.build() + "\n" + err);
                     }
+                }else if (path.startsWith("/connect")){
+                    //Handle connection
+                }else if (path.startsWith("/create")){
+                    handleAccountCreation(out, requete, ans);
                 }else {
                     //Handle other post requests
                 }
@@ -109,6 +116,24 @@ class Connection implements Runnable {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private static void handleAccountCreation(PrintStream out, HttpReq requete, HttpAns ans) {
+        HashMap<String, String> params = Utility.gson.fromJson(requete.getBody(), HashMap.class);
+        String email = params.get("email");
+        String nom = params.get("nom");
+        String prenom = params.get("prenom");
+        String password = params.get("password");
+
+        System.out.printf("%s %s %s %s", email, nom, prenom, password);
+        User jeanPierre = new User(email, nom, prenom, Utility.hashSHA256(password));
+
+        (new BasicVirtualTable<User>(User.class)).add(jeanPierre);
+
+        String body = "{\"status\":\"success\"}";
+
+        ans.setType(HttpAns._json).setLen(body.length()).setCode(HttpAns._200);
+        out.print(ans.build() + "\n" + body);
     }
 
     private static void sendHeader(PrintStream out, HttpAns ans) {
@@ -122,37 +147,8 @@ class Connection implements Runnable {
             // Java 9
             fis = new FileInputStream(f);
             fis.transferTo(out);
-
-            // Java 7 & 8
-            /*
-            BufferedInputStream bis = new BufferedInputStream(fis);
-            byte[] buffer = new byte[4096];
-            int n;
-            while ((n = bis.read(buffer)) != -1) {
-                out.write(buffer, 0, n);
-            }
-            */
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    @Deprecated
-    private static String getFileType(String url){
-        String ans = "";
-        if (Pattern.matches("\\^(/(\\S)+)+\\.html", url))
-            ans = HttpAns._html;
-        else if (Pattern.matches("\\^(/(\\S)+)+\\.css", url))
-            ans = HttpAns._css;
-        else if (Pattern.matches("\\^(/(\\S)+)+\\.js", url))
-            ans = HttpAns._js;
-        else if (Pattern.matches("\\^(/(\\S)+)+\\.jpeg", url) || Pattern.matches("\\^(/(\\S)+)+\\.jpg", url))
-            ans = HttpAns._jpeg;
-        else if (Pattern.matches("\\^(/(\\S)+)+\\.mp4", url))
-            ans = HttpAns._mp4;
-        else if (Pattern.matches("\\^(/(\\S)+)+\\.png", url))
-            ans = HttpAns._png;
-        System.err.println("Content type = " + ans);
-        return ans;
     }
 }
