@@ -8,13 +8,15 @@ import java.sql.Timestamp;
 
 @Entity(tableName = "Users")
 public class User {
-    @Key(columnName = "user_id")
+
     transient private int user_id;
-    private String email, nom, prenom, pwd_hash;
+    @Key(columnName = "email")
+    private String email;
+    private String nom, prenom, pwd_hash;
 
     @DaoConstructor
-    public User(int user_id, String email, String nom, String prenom, String pwd_hash) {
-        this.user_id = user_id;
+    public User(long user_id, String email, String nom, String prenom, String pwd_hash) {
+        this.user_id = Math.toIntExact(user_id);
         this.email = email;
         this.nom = nom;
         this.prenom = prenom;

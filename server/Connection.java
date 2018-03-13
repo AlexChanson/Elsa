@@ -98,12 +98,12 @@ class Connection implements Runnable {
 
                     }else {
                         // Api Key is not valid
-                        String err = "{\"error\":\"Invalid API Key !\"}";
+                        String err = "{\"error\":\"invalid_api_key\"}";
                         ans.setCode(HttpAns._403).setType(HttpAns._json).setLen(err.length());
                         out.print(ans.build() + "\n" + err);
                     }
                 }else if (path.startsWith("/connect")){
-                    //Handle connection
+                    handleConnection(out, requete, ans);
                 }else if (path.startsWith("/create")){
                     handleAccountCreation(out, requete, ans);
                 }else {
@@ -118,6 +118,25 @@ class Connection implements Runnable {
         }
     }
 
+    private static void handleConnection(PrintStream out, HttpReq requete, HttpAns ans) {
+        HashMap<String, String> params = Utility.gson.fromJson(requete.getBody(), HashMap.class);
+        String email = params.get("email");
+        String password = params.get("password");
+
+        User jeanPierre = (new BasicVirtualTable<User>(User.class)).find(email);
+
+        if (Utility.hashSHA256(password).equals(jeanPierre.getPwd_hash())){
+            Token token = (new BasicVirtualTable<Token>(Token.class)).find(jeanPierre.getUser_id());
+            String body = "{\"status\":\"success\", \"api_key\":\""+token+"\" }";
+            ans.setType(HttpAns._json).setLen(body.length()).setCode(HttpAns._200);
+            out.print(ans.build() + "\n" + body);
+        } else {
+            String body = "{\"error\":\"bad_login\"}";
+            ans.setType(HttpAns._json).setLen(body.length()).setCode(HttpAns._200);
+            out.print(ans.build() + "\n" + body);
+        }
+    }
+
     private static void handleAccountCreation(PrintStream out, HttpReq requete, HttpAns ans) {
         HashMap<String, String> params = Utility.gson.fromJson(requete.getBody(), HashMap.class);
         String email = params.get("email");
@@ -125,10 +144,10 @@ class Connection implements Runnable {
         String prenom = params.get("prenom");
         String password = params.get("password");
 
-        System.out.printf("%s %s %s %s", email, nom, prenom, password);
         User jeanPierre = new User(email, nom, prenom, Utility.hashSHA256(password));
 
         (new BasicVirtualTable<User>(User.class)).add(jeanPierre);
+        (new BasicVirtualTable<Token>(Token.class)).add(new Token(jeanPierre.getUser_id(), Utility.hashSHA256(jeanPierre.getEmail())));
 
         String body = "{\"status\":\"success\"}";
 
