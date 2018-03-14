@@ -23,6 +23,7 @@ public class BasicVirtualTable<T> implements VirtualTable<T>{
     private String tableName;
     private Constructor myConstructor;
     private Field key;
+    private String columns;
 
     public BasicVirtualTable(Class targeted) {
         myClass = targeted;
@@ -34,27 +35,47 @@ public class BasicVirtualTable<T> implements VirtualTable<T>{
         try {
             myConstructor = getConstructor(myClass);
         } catch (NoSuchMethodException e){
-            System.err.printf("No appropriate constructor found for %s, use @DaoConstructor to reference one.", myClass.getSimpleName());
+            System.err.printf("No appropriate constructor found for %s, use @DaoConstructor to reference one.%n", myClass.getSimpleName());
         }
+        List<String> colNames = new ArrayList<>();
         for (Field field : targeted.getDeclaredFields()){
             if (field.getAnnotation(Key.class) != null)
                 key = field;
+            if (!isTransient(field))
+                colNames.add(field.getAnnotation(Column.class) != null ? field.getAnnotation(Column.class).name() : field.getName());
+            else
+                colNames.add(null);
         }
-
+        columns = formatedColNames(colNames);
     }
 
     @Override
-    public void delete(Object key) {
-        //TODO this one is pretty easy
+    public boolean delete(Object key) {
+        String query = "DELETE FROM " + tableName + " WHERE ";
+        Column c = this.key.getAnnotation(Column.class);
+        query += c != null ? c.name() : this.key.getName();
+        query += " = " + key instanceof String ? "\'" + key + "\"" : key.toString();
+        query += ";";
+
+        try {
+            Statement statement = MYSQL.getConnection().createStatement();
+            statement.executeUpdate(query);
+        }catch (SQLException e){
+            return false;
+        }
+
+        return true;
     }
 
     @Override
     public T find(Object key) {
-        if (key == null){
-            System.err.printf("No @Key declared for class %s !", myClass.getSimpleName());
+        if (this.key == null){
+            System.err.printf("No @Key declared for class %s !%n", myClass.getSimpleName());
             return null;
         }
-        String colName = this.key.getAnnotation(Key.class).columnName();
+        if (key == null)
+            return null;
+        String colName = this.key.getAnnotation(Column.class) != null ? this.key.getAnnotation(Column.class).name() : this.key.getName();
         String formatedKey = key instanceof String ? "\'" + key + "\'" : key.toString();
         Object[] params = null;
         try {
@@ -85,39 +106,36 @@ public class BasicVirtualTable<T> implements VirtualTable<T>{
      * @param o the object to insert
      */
     @Override
-    public void add(T o) {
+    public boolean add(T o) {
         Class c = o.getClass();
-        StringBuilder values = new StringBuilder();
-        StringBuilder querry = new StringBuilder("INSERT INTO " + tableName + " (%field_names% VALUES (");
+        StringBuilder query = new StringBuilder("INSERT INTO " + tableName + " " + columns + " VALUES (");
         for (Field field : c.getDeclaredFields()){
             if (! Modifier.isTransient(field.getModifiers())){
                 field.setAccessible(true);
                 try {
-                    querry.append(field.get(o).getClass().equals(String.class) ? "\'" + field.get(o) + "\'" : field.get(o));
-                    querry.append(",");
-                    values.append(field.getName());
-                    values.append(",");
+                    query.append(field.get(o).getClass().equals(String.class) ? "\'" + field.get(o) + "\'" : field.get(o));
+                    query.append(",");
                 } catch (IllegalAccessException e) {
                     e.printStackTrace();
                 }
             }
         }
-        querry.setCharAt(querry.lastIndexOf(","), ')');
-        querry.append(";");
-        values.setCharAt(values.lastIndexOf(","), ')');
+        query.setCharAt(query.lastIndexOf(","), ')');
+        query.append(";");
 
         try {
             Statement statement = MYSQL.getConnection().createStatement();
-            statement.executeUpdate(querry.toString().replace("%field_names%", values.toString()));
+            statement.executeUpdate(query.toString());
         } catch (SQLException e) {
-            e.printStackTrace();
+            return false;
         }
-
+        return true;
     }
 
     @Override
-    public void update(Object key, T o) {
+    public boolean update(Object key, T o) {
         //TODO update method
+        return false;
     }
 
     /**
@@ -199,5 +217,20 @@ public class BasicVirtualTable<T> implements VirtualTable<T>{
         }
         throw new NoSuchMethodException();
     }
+
+    private static boolean isTransient(Field f){
+        return f.toGenericString().contains("transient");
+    }
+
+    private static String formatedColNames(List<String> list){
+        StringBuilder builder = new StringBuilder("(");
+        list.forEach(cname -> {
+            if (cname != null)
+                builder.append(cname + ",");
+        });
+        builder.setCharAt(builder.lastIndexOf(","), ')');
+        return builder.toString();
+    }
+
 
 }

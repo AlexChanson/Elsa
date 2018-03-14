@@ -8,8 +8,8 @@ import java.util.List;
  */
 public interface VirtualTable<T> {
     T find(Object key);
-    void add(T o);
-    void update(Object key, T o);
-    void delete(Object key);
+    boolean add(T o);
+    boolean update(Object key, T o);
+    boolean delete(Object key);
     List<T> getAll();
 }

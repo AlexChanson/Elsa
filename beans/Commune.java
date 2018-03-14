@@ -1,5 +1,6 @@
 package beans;
 
+import dao.Column;
 import dao.DaoConstructor;
 import dao.Entity;
 import dao.Key;
@@ -7,7 +8,8 @@ import dao.Key;
 @Entity(tableName = "Communes_alex")
 public class Commune {
 
-    @Key(columnName = "CODE_INSEE")
+    @Column(name = "CODE_INSEE")
+    @Key
     public final String code_insee;
 
     public final String nom;

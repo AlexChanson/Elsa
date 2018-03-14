@@ -10,8 +10,7 @@ import java.sql.Timestamp;
 public class User {
 
     transient private int user_id;
-    @Key(columnName = "email")
-    private String email;
+    @Key private String email;
     private String nom, prenom, pwd_hash;
 
     @DaoConstructor

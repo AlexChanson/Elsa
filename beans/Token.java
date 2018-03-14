@@ -8,7 +8,7 @@ import dao.Key;
 public class Token {
 
     private long user_id;
-    @Key(columnName = "token")
+    @Key
     private String token;
 
     @DaoConstructor

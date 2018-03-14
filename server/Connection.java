@@ -125,9 +125,9 @@ class Connection implements Runnable {
 
         User jeanPierre = (new BasicVirtualTable<User>(User.class)).find(email);
 
-        if (Utility.hashSHA256(password).equals(jeanPierre.getPwd_hash())){
+        if (jeanPierre != null && Utility.hashSHA256(password).equals(jeanPierre.getPwd_hash())){
             Token token = (new BasicVirtualTable<Token>(Token.class)).find(jeanPierre.getUser_id());
-            String body = "{\"status\":\"success\", \"api_key\":\""+token+"\" }";
+            String body = "{\"api_key\":\""+token+"\" }";
             ans.setType(HttpAns._json).setLen(body.length()).setCode(HttpAns._200);
             out.print(ans.build() + "\n" + body);
         } else {

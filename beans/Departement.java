@@ -1,12 +1,14 @@
 package beans;
 
+import dao.Column;
 import dao.DaoConstructor;
 import dao.Entity;
 import dao.Key;
 
 @Entity(tableName = "Depts")
 public class Departement {
-    @Key(columnName = "NUM_DEPT")
+    @Column(name = "NUM_DEPT")
+    @Key
     private String num;
     private String nom;
     private int num_reg;
