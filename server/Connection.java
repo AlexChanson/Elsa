@@ -78,7 +78,7 @@ class Connection implements Runnable {
                     // Verify API Key
                     BasicVirtualTable<Token> tok = new BasicVirtualTable<>(Token.class);
                     String token = requete.getParameter("key");
-                    if (tok.find(token) != null){
+                    if (tok.find(token, "token") != null){
                         // Redirect to api
                         Gson gson = new Gson();
                         Command cmd = gson.fromJson("{ \"parameters\" : " + requete.getBody() + " }", Command.class);
@@ -123,6 +123,7 @@ class Connection implements Runnable {
         String email = params.get("email");
         String password = params.get("password");
 
+        System.out.printf("Connection requested from '%s' with password '%s' %n", email, password);
         User jeanPierre = (new BasicVirtualTable<User>(User.class)).find(email);
 
         if (jeanPierre != null && Utility.hashSHA256(password).equals(jeanPierre.getPwd_hash())){

@@ -7,8 +7,8 @@ import dao.Key;
 @Entity(tableName = "Tokens")
 public class Token {
 
-    private long user_id;
     @Key
+    private long user_id;
     private String token;
 
     @DaoConstructor
@@ -22,6 +22,11 @@ public class Token {
     }
 
     public String getToken() {
+        return token;
+    }
+
+    @Override
+    public String toString() {
         return token;
     }
 }

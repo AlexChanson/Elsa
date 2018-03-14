@@ -101,6 +101,38 @@ public class BasicVirtualTable<T> implements VirtualTable<T>{
 
     }
 
+    public T find(Object key, String colName){
+        if (this.key == null){
+            System.err.printf("No @Key declared for class %s !%n", myClass.getSimpleName());
+            return null;
+        }
+        if (key == null)
+            return null;
+        String formatedKey = key instanceof String ? "\'" + key + "\'" : key.toString();
+        Object[] params = null;
+        try {
+
+            Statement statement = MYSQL.getConnection().createStatement();
+            statement.execute("SELECT * from " + tableName + " WHERE "+colName+" = "+formatedKey+";");
+            ResultSet resultSet = statement.getResultSet();
+            int paramsNb = myConstructor.getParameterCount();
+            params = new Object[paramsNb];
+            if (!resultSet.next())
+                return null;
+            for (int i = 1; i <= paramsNb; ++i)
+                params[i - 1] = resultSet.getObject(i);
+            return (T) myConstructor.newInstance(params);
+
+        }catch (SQLException e){
+            e.printStackTrace();
+            return null;
+        } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
+            System.err.printf("Error on importing %s from %s with parameters (%s).%n", myClass.getSimpleName(), tableName, Arrays.toString(params));
+            return null;
+        }
+
+    }
+
     /**
      * Adds the object to the table
      * @param o the object to insert
