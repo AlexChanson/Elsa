@@ -60,6 +60,7 @@ public class BasicVirtualTable<T> implements VirtualTable<T>{
         try {
             Statement statement = MYSQL.getConnection().createStatement();
             statement.executeUpdate(query);
+            statement.close();
         }catch (SQLException e){
             return false;
         }
@@ -83,7 +84,6 @@ public class BasicVirtualTable<T> implements VirtualTable<T>{
         String formatedKey = key instanceof String ? "\'" + key + "\'" : key.toString();
         Object[] params = null;
         try {
-
             Statement statement = MYSQL.getConnection().createStatement();
             statement.execute("SELECT * from " + tableName + " WHERE "+colName+" = "+formatedKey+";");
             ResultSet resultSet = statement.getResultSet();
@@ -93,6 +93,8 @@ public class BasicVirtualTable<T> implements VirtualTable<T>{
                 return null;
             for (int i = 1; i <= paramsNb; ++i)
                 params[i - 1] = resultSet.getObject(i);
+            resultSet.close();
+            statement.close();
             return (T) myConstructor.newInstance(params);
 
         }catch (SQLException e){
@@ -130,6 +132,7 @@ public class BasicVirtualTable<T> implements VirtualTable<T>{
         try {
             Statement statement = MYSQL.getConnection().createStatement();
             statement.executeUpdate(query.toString());
+            statement.close();
         } catch (SQLException e) {
             return false;
         }
@@ -168,6 +171,7 @@ public class BasicVirtualTable<T> implements VirtualTable<T>{
                     System.err.printf("Error on importing %s from %s with parameters (%s).%n", myClass.getSimpleName(), tableName, Arrays.toString(params));
                 }
             }
+            resultSet.close();
             return result;
         } catch (SQLException e) {
             System.err.printf("Error on importing table : %s, error : %s.%n", tableName, e.getMessage());

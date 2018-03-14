@@ -33,6 +33,12 @@ class Connection implements Runnable {
             }
         }
     }
+    private static BasicVirtualTable<User> userTable;
+    private static BasicVirtualTable<Token> tokenTable;
+    static {
+        userTable = new BasicVirtualTable<>(User.class);
+        tokenTable = new BasicVirtualTable<>(Token.class);
+    }
 
     Connection(Socket socket) {
         this.socket = socket;
@@ -120,14 +126,15 @@ class Connection implements Runnable {
 
     private static void handleConnection(PrintStream out, HttpReq requete, HttpAns ans) {
         HashMap<String, String> params = Utility.gson.fromJson(requete.getBody(), HashMap.class);
+
         String email = params.get("email");
         String password = params.get("password");
-
         System.out.printf("Connection requested from '%s' with password '%s' %n", email, password);
-        User jeanPierre = (new BasicVirtualTable<User>(User.class)).find(email);
+
+        User jeanPierre = userTable.find(email);
 
         if (jeanPierre != null && Utility.hashSHA256(password).equals(jeanPierre.getPwd_hash())){
-            Token token = (new BasicVirtualTable<Token>(Token.class)).find(jeanPierre.getUser_id());
+            Token token = tokenTable.find(jeanPierre.getUser_id());
             String body = "{\"api_key\":\""+token+"\" }";
             ans.setType(HttpAns._json).setLen(body.length()).setCode(HttpAns._200);
             out.print(ans.build() + "\n" + body);
