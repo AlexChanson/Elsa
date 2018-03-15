@@ -16,12 +16,10 @@ public class HandlerChain<T> implements Handler<T> {
 
     @Override
     public T handle(Command command) {
-
         return this.handlers.stream()
                 .map(x -> x.handle(command) )
                 .filter( x -> x != null)
                 .findFirst()
                 .orElse(null);
-
     }
 }

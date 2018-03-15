@@ -91,10 +91,11 @@ class Connection implements Runnable {
                         try {
                             RequestResult result = PipelineFactory.getPipeline().handle(cmd);
                             //TODO Check if result is null (means nothing in the pipeline to handle the request)
-                            ans.setCode(HttpAns._200).setType(HttpAns._json).setLen(result.toJson().length());
+                            byte[] data = Utility.compress(result.toJson());
+                            ans.setCode(HttpAns._200).setType(HttpAns._json).setLen(data.length).setCompressed();
                             out.print(ans.build());
                             out.print("\n");
-                            out.print(result.toJson());
+                            out.write(data);
                         }catch (Exception e){
                             // Exception thrown in the pipeline returning 500 error code to client
                             String err = "{\"error\":\"" + e.toString().replace("\n", "\t")+ "\"}";

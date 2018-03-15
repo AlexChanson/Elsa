@@ -12,7 +12,7 @@ import java.util.List;
 public class GetRegions implements Handler<RequestResult> {
     @Override
     public RequestResult handle(Command command) {
-        if (command.getParameter("type") != null && command.getParameter("type").equals("getRegions"))
+        if (checkType(command, "getRegions"))
             return process();
         return null;
     }

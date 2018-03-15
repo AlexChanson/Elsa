@@ -61,4 +61,9 @@ public class HttpAns {
         header.add("Set-Cookie: "+c.name+"="+c.value);
         return this;
     }
+
+    public HttpAns setCompressed(){
+        header.add("Content-Encoding: gzip");
+        return this;
+    }
 }

@@ -12,7 +12,7 @@ import java.util.List;
 public class GetDepartements implements Handler<RequestResult> {
     @Override
     public RequestResult handle(Command command) {
-        if (command.getParameter("type") != null && command.getParameter("type").equals("getDepartements"))
+        if (checkType(command, "getDepartements"))
             return process();
         return null;
     }
