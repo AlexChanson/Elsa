@@ -90,12 +90,20 @@ class Connection implements Runnable {
                         Command cmd = gson.fromJson("{ \"parameters\" : " + requete.getBody() + " }", Command.class);
                         try {
                             RequestResult result = PipelineFactory.getPipeline().handle(cmd);
-                            //TODO Check if result is null (means nothing in the pipeline to handle the request)
-                            byte[] data = Utility.compress(result.toJson());
-                            ans.setCode(HttpAns._200).setType(HttpAns._json).setLen(data.length).setCompressed();
-                            out.print(ans.build());
-                            out.print("\n");
-                            out.write(data);
+                            if (requete.getHeader("Accept-Encoding") != null && requete.getHeader("Accept-Encoding").toLowerCase().contains("gzip")){
+                                byte[] data = Utility.compress(result.toJson());
+                                ans.setCode(HttpAns._200).setType(HttpAns._json).setLen(data.length).setCompressed();
+                                out.print(ans.build());
+                                out.print("\n");
+                                out.write(data);
+                            }else {
+                                String temp = result.toJson();
+                                ans.setCode(HttpAns._200).setType(HttpAns._json).setLen(temp.length());
+                                out.print(ans.build());
+                                out.print("\n");
+                                out.print(temp);
+                            }
+
                         }catch (Exception e){
                             // Exception thrown in the pipeline returning 500 error code to client
                             String err = "{\"error\":\"" + e.toString().replace("\n", "\t")+ "\"}";

@@ -103,6 +103,9 @@ public class HttpReq {
 
     }
 
+    String getHeader(String key){
+        return header.get(key);
+    }
     String getVersion(){
         return head.split(" ")[2];
     }
