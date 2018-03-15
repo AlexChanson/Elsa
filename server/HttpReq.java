@@ -53,8 +53,17 @@ public class HttpReq {
 
             }
             // Reading the body if any
+            boolean hasBody = false;
+            int len = -1;
             if (header.get("Content-Length") != null){
-                int len = Integer.parseInt(header.get("Content-Length").replace(" ", ""));
+                len = Integer.parseInt(header.get("Content-Length").replace(" ", ""));
+                hasBody = true;
+            }
+            if (header.get("content-length") != null){
+                len = Integer.parseInt(header.get("content-length").replace(" ", ""));
+                hasBody = true;
+            }
+            if (hasBody){
                 char[] buffer = new char[len];
                 br.read(buffer);
                 body = new String(buffer);

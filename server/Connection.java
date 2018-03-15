@@ -17,8 +17,6 @@ import java.util.Properties;
 
 class Connection implements Runnable {
 
-    private Socket socket;
-
     //Web directory definition
     public static String wwwDir = System.getProperty("user.dir") + "/www/";
     static {
@@ -39,6 +37,11 @@ class Connection implements Runnable {
         userTable = new BasicVirtualTable<>(User.class);
         tokenTable = new BasicVirtualTable<>(Token.class);
     }
+    private static Gson gson = new Gson();
+
+
+    private Socket socket;
+    private PrintStream out;
 
     Connection(Socket socket) {
         this.socket = socket;
@@ -48,7 +51,7 @@ class Connection implements Runnable {
     // This the 'main' method the request is handled here the order of each call is very important
     public void run() {
         try {
-            PrintStream out = new PrintStream(socket.getOutputStream());
+            out = new PrintStream(socket.getOutputStream());
             HttpReq requete = new HttpReq();
 
             requete.doParse(socket.getInputStream());
@@ -86,7 +89,6 @@ class Connection implements Runnable {
                     String token = requete.getParameter("key");
                     if (tok.find(token, "token") != null){
                         // Redirect to api
-                        Gson gson = new Gson();
                         Command cmd = gson.fromJson("{ \"parameters\" : " + requete.getBody() + " }", Command.class);
                         try {
                             RequestResult result = PipelineFactory.getPipeline().handle(cmd);
@@ -94,28 +96,26 @@ class Connection implements Runnable {
                                 byte[] data = Utility.compress(result.toJson());
                                 ans.setCode(HttpAns._200).setType(HttpAns._json).setLen(data.length).setCompressed();
                                 out.print(ans.build());
-                                out.print("\n");
+                                out.print("\r\n");
                                 out.write(data);
                             }else {
                                 String temp = result.toJson();
                                 ans.setCode(HttpAns._200).setType(HttpAns._json).setLen(temp.length());
-                                out.print(ans.build());
-                                out.print("\n");
-                                out.print(temp);
+                                printResponse(ans.build(), temp);
                             }
 
                         }catch (Exception e){
                             // Exception thrown in the pipeline returning 500 error code to client
                             String err = "{\"error\":\"" + e.toString().replace("\n", "\t")+ "\"}";
                             ans.setCode(HttpAns._500).setLen(err.length()).setType(HttpAns._json);
-                            out.print(ans.build() + "\n" + err);
+                            printResponse(ans.build(), err);
                         }
 
                     }else {
                         // Api Key is not valid
                         String err = "{\"error\":\"invalid_api_key\"}";
                         ans.setCode(HttpAns._403).setType(HttpAns._json).setLen(err.length());
-                        out.print(ans.build() + "\n" + err);
+                        printResponse(ans.build(), err);
                     }
                 }else if (path.startsWith("/connect")){
                     handleConnection(out, requete, ans);
@@ -146,11 +146,11 @@ class Connection implements Runnable {
             Token token = tokenTable.find(jeanPierre.getUser_id());
             String body = "{\"api_key\":\""+token+"\" }";
             ans.setType(HttpAns._json).setLen(body.length()).setCode(HttpAns._200);
-            out.print(ans.build() + "\n" + body);
+            out.print(ans.build() + "\r\n" + body);
         } else {
             String body = "{\"error\":\"bad_login\"}";
             ans.setType(HttpAns._json).setLen(body.length()).setCode(HttpAns._200);
-            out.print(ans.build() + "\n" + body);
+            out.print(ans.build() + "\r\n" + body);
         }
     }
 
@@ -169,7 +169,7 @@ class Connection implements Runnable {
         String body = "{\"status\":\"success\"}";
 
         ans.setType(HttpAns._json).setLen(body.length()).setCode(HttpAns._200);
-        out.print(ans.build() + "\n" + body);
+        out.print(ans.build() + "\r\n" + body);
     }
 
     private static void sendHeader(PrintStream out, HttpAns ans) {
@@ -186,5 +186,12 @@ class Connection implements Runnable {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void printResponse(String header, String body){
+        out.print(header);
+        out.write(0x0d);
+        out.write(0x0a);
+        out.print(body);
     }
 }
