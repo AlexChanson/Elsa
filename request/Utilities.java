@@ -11,24 +11,29 @@ import java.util.regex.Pattern;
 
 public class Utilities {
 
-    private static HashMap<String, String> nameToBDDName = new HashMap<>();
-    private static HashMap<String, String> BDDNameToName = new HashMap<>();
+    private static HashMap<String, Function<Commune, Double>> commDoubleGetters;
+    private static HashMap<String, Function<Commune, Long>> commLongGetters;
+
+    static {
+        commDoubleGetters = new HashMap<>();
+        commDoubleGetters.put("superficie", Commune::getSuperficie);
+        commDoubleGetters.put("indice_demographique", Commune::getIndice_demo);
+        commDoubleGetters.put("score_urbanite", Commune::getScore_urbanite);
+        commDoubleGetters.put("score_croissance_pop", Commune::getScore_croiss_pop);
+
+        commLongGetters = new HashMap<>();
+        commLongGetters.put("etablissements", Commune::getNb_etablissements);
+        commLongGetters.put("actifs2010", intToLongGetter(Commune::getActifs_2010));
+        commLongGetters.put("actifs2015", intToLongGetter(Commune::getNb_actifs_2015));
+        commLongGetters.put("etudiants", intToLongGetter(Commune::getNb_etudiants));
+        commLongGetters.put("population2015", intToLongGetter(Commune::getPop_2015));
+    }
 
     public final static Pattern predPattern = Pattern.compile(
             "\\s*([a-zA-Z_]*)\\s*([!=/><]+)\\s*('\\w*'|\"\\w*\"|[0-9]+\\.[0-9]+|[0-9]+)\\s*");
 
-
-    public static String getBDDName(String name){
-        return BDDNameToName.get(name);
-    }
-
-    public static String getName(String bddName){
-        return nameToBDDName.get(bddName);
-    }
-
-    public static void addNameMapping(String name, String bddName){
-        nameToBDDName.put(name, bddName);
-        BDDNameToName.put(bddName, name);
+    public static Function<Commune, Long> intToLongGetter(Function<Commune, Integer> f){
+        return x -> Long.valueOf(f.apply(x));
     }
 
     public static Function<Commune, Double> doubleCommuneGetter(String attribute){
@@ -37,18 +42,7 @@ public class Utilities {
         }
         attribute = attribute.toLowerCase();
 
-        switch (attribute){
-            case "superficie":
-                return x -> x.superficie;
-            case "indice_demo":
-                return x -> x.indice_demo;
-            case "score_croissance_pop":
-                return x -> x.score_croiss_pop;
-            case "score_urbanite":
-                return x -> x.score_urbanite;
-        }
-
-        return null;
+        return commDoubleGetters.get(attribute);
     }
 
     public static Function<Commune, Long> longCommuneGetter(String attribute){
@@ -59,9 +53,9 @@ public class Utilities {
 
         switch (attribute){
             case "actifs":
-                return x -> (long) x.actifs_2010;
+                return x -> (long) x.getActifs_2010();
             case "etablissements":
-                return x -> x.nb_etablissements;
+                return x -> x.getNb_etablissements();
         }
 
         return null;
