@@ -10,8 +10,8 @@ public class CommuneSimple {
     }
 
     public CommuneSimple(Commune c) {
-        this.code_insee = c.code_insee;
-        this.nom = c.nom;
-        this.num_dep = c.num_dep;
+        this.code_insee = c.getCode_insee();
+        this.nom = c.getNom();
+        this.num_dep = c.getNum_dep();
     }
 }
