@@ -19,7 +19,7 @@ public class ClusterCache<T> implements Handler<T> {
 
 
     @Override
-    public T handle(Command command) {
+    public T handle(Command command) throws RequestMalformedException{
         T res = clusters.get(command);
         if (res == null){
             res = handler.handle(command);

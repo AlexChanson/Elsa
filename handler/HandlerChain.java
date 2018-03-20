@@ -1,5 +1,7 @@
 package handler;
 
+import core.RequestMalformedException;
+
 import java.util.ArrayList;
 
 public class HandlerChain<T> implements Handler<T> {
@@ -15,9 +17,18 @@ public class HandlerChain<T> implements Handler<T> {
     }
 
     @Override
-    public T handle(Command command) {
+    public T handle(Command command) throws RequestMalformedException{
+        //TODO Exception not compatible with stream format change to regular for loop
+
         return this.handlers.stream()
-                .map(x -> x.handle(command) )
+                .map(x -> {
+                    try {
+                        return x.handle(command);
+                    } catch (RequestMalformedException e) {
+                        e.printStackTrace();
+                        return null;
+                    }
+                })
                 .filter( x -> x != null)
                 .findFirst()
                 .orElse(null);

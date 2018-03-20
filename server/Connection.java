@@ -3,6 +3,7 @@ package server;
 import beans.Token;
 import beans.User;
 import com.google.gson.Gson;
+import core.RequestMalformedException;
 import dao.BasicVirtualTable;
 import handler.Command;
 import handler.PipelineFactory;
@@ -104,7 +105,13 @@ class Connection implements Runnable {
                                 printResponse(ans.build(), temp);
                             }
 
-                        }catch (Exception e){
+                        }catch(RequestMalformedException rqe){
+                            String err = rqe.getMessage();
+                            ans.setCode(HttpAns._400).setLen(err.length()).setType(HttpAns._json);
+                            printResponse(ans.build(), err);
+
+                        }
+                        catch (Exception e){
                             // Exception thrown in the pipeline returning 500 error code to client
                             String err = "{\"error\":\"" + e.toString().replace("\n", "\t")+ "\"}";
                             ans.setCode(HttpAns._500).setLen(err.length()).setType(HttpAns._json);

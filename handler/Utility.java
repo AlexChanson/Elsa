@@ -42,6 +42,12 @@ public class Utility {
         return hexString.toString();
     }
 
+    /**
+     * Compresses a string with gzip
+     * @param data the string to be compressed (in system default encoding)
+     * @return a byte array containing the compressed data
+     * @throws IOException
+     */
     public static byte[] compress(String data) throws IOException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream(data.length());
         GZIPOutputStream gzip = new GZIPOutputStream(bos);

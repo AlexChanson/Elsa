@@ -9,6 +9,7 @@ import java.util.Date;
  */
 public class HttpAns {
     public static final String
+            _400 = "HTTP/1.0 400  Bad Request",
             _404 = "HTTP/1.0 404 NOT FOUND",
             _403 = "HTTP/1.0 403 Forbidden",
             _200 = "HTTP/1.0 200 OK",
