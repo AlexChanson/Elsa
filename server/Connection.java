@@ -56,6 +56,7 @@ class Connection implements Runnable {
             HttpReq requete = new HttpReq();
 
             requete.doParse(socket.getInputStream());
+            System.out.printf("DEBUG '%s' FROM '%s'%n", requete.getHead(), socket.getRemoteSocketAddress().toString());
 
             // Préparation de la réponse
             HttpAns ans = new HttpAns();

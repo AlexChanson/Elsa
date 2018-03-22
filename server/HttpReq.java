@@ -28,8 +28,6 @@ public class HttpReq {
                 return;
             head = line;
 
-            System.out.println("DEBUG: " + head);
-
             // Decoding parameters from url
             int n = getPath().indexOf('?');
             if (n != -1){
@@ -144,5 +142,9 @@ public class HttpReq {
 
     public String getBody() {
         return body;
+    }
+
+    public String getHead() {
+        return head;
     }
 }
