@@ -1,5 +1,7 @@
 package server;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -68,5 +70,9 @@ public class HttpAns {
     public HttpAns setCompressed(){
         header.add("Content-Encoding: gzip");
         return this;
+    }
+
+    public void printTo(OutputStream out) throws IOException{
+        out.write(this.build().getBytes());
     }
 }
