@@ -30,6 +30,7 @@ public class HttpAns {
         header.add("Date: " + new Date());
         header.add("Server: Elsa/1.0");
         header.add("Content-type: text/html");
+        header.add("Access-Control-Allow-Origin: *");
     }
 
 

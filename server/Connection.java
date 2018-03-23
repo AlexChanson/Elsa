@@ -19,7 +19,7 @@ import java.util.Properties;
 class Connection implements Runnable {
 
     //Web directory definition
-    public static String wwwDir = System.getProperty("user.dir") + "/www/";
+    public static String wwwDir = "~/www";
     static {
         InputStream input = Connection.class.getClassLoader().getResourceAsStream("config.properties");
         if (input != null) {
@@ -66,8 +66,6 @@ class Connection implements Runnable {
                 boolean fileOK = false;
                 if (path.equals("/"))
                     path = "/index.html";
-
-                //ans.setType(getFileType(path));
 
                 if (Files.exists(Paths.get(wwwDir + path))){
                     fileOK = true;
