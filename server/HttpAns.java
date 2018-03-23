@@ -31,6 +31,7 @@ public class HttpAns {
         header.add("Server: Elsa/1.0");
         header.add("Content-type: text/html");
         header.add("Access-Control-Allow-Origin: *");
+        header.add("Connection: close");
     }
 
 
