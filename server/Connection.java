@@ -64,12 +64,18 @@ class Connection implements Runnable {
 
             if (requete.isGet()){
                 boolean fileOK = false;
+                byte[] compressed = null;
                 if (path.equals("/"))
                     path = "/index.html";
 
                 if (Files.exists(Paths.get(wwwDir + path))){
                     fileOK = true;
-                    ans.setLen(Math.toIntExact(new File(wwwDir + path).length()));
+                    if (requete.supportsGzip()){
+                        compressed = Utility.compress(new File(wwwDir + path));
+                        ans.setLen(compressed.length);
+                        ans.setCompressed();
+                    }else
+                        ans.setLen(Math.toIntExact(new File(wwwDir + path).length()));
                     ans.setType(Files.probeContentType(Paths.get(wwwDir + path)));
                 }else {
                     ans.setCode(HttpAns._404);
@@ -78,7 +84,11 @@ class Connection implements Runnable {
                 sendHeader(out, ans);
 
                 if (fileOK){
-                    sendBinaryFileStream(new File(wwwDir + path), out);
+                    if (compressed == null)
+                        sendBinaryFileStream(new File(wwwDir + path), out);
+                    else{
+                        out.write(compressed);
+                    }
                 }
 
             } else if (requete.isPost()){
@@ -92,7 +102,7 @@ class Connection implements Runnable {
                         Command cmd = gson.fromJson("{ \"parameters\" : " + requete.getBody() + " }", Command.class);
                         try {
                             RequestResult result = PipelineFactory.getPipeline().handle(cmd);
-                            if (requete.getHeader("Accept-Encoding") != null && requete.getHeader("Accept-Encoding").toLowerCase().contains("gzip")){
+                            if (requete.supportsGzip()){
                                 byte[] data = Utility.compress(result.toJson());
                                 ans.setCode(HttpAns._200).setType(HttpAns._json).setLen(data.length).setCompressed();
                                 out.print(ans.build());

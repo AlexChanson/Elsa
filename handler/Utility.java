@@ -2,10 +2,7 @@ package handler;
 
 import com.google.gson.Gson;
 
-import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -53,6 +50,18 @@ public class Utility {
         GZIPOutputStream gzip = new GZIPOutputStream(bos);
         gzip.write(data.getBytes());
         gzip.close();
+        byte[] compressed = bos.toByteArray();
+        bos.close();
+        return compressed;
+    }
+
+    public static byte[] compress(File f) throws IOException {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        FileInputStream fis = new FileInputStream(f);
+        GZIPOutputStream out = new GZIPOutputStream(bos);
+        fis.transferTo(out);
+        out.close();
+        fis.close();
         byte[] compressed = bos.toByteArray();
         bos.close();
         return compressed;

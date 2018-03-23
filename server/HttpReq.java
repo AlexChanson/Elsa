@@ -134,6 +134,14 @@ public class HttpReq {
         return ret;
     }
 
+    public boolean supportsGzip() {
+        String s = header.get("Accept-Encoding");
+        if (s != null)
+            return s.toLowerCase().contains("gzip");
+        s = header.get("accept-encoding");
+        return s != null && s.toLowerCase().contains("gzip");
+    }
+
     public void print(){
         System.out.println(" ### ### Debug ### ###");
         System.out.println(this.toString());
