@@ -82,6 +82,82 @@ public class Utilities {
         return x -> getter.apply(x).equals(val);
     }
 
+    public static <T> Predicate<T> makeLessThanPredicate(Function<T, Double> getter, double val){
+        return x -> getter.apply(x) < val;
+    }
+
+    public static <T> Predicate<T> makeLessThanPredicate(Function<T, Integer> getter, int val){
+        return x -> getter.apply(x) < val;
+    }
+
+    public static <T> Predicate<T> makeGreaterThanPred(Function<T, Integer> getter, int val){
+        return x -> getter.apply(x) > val;
+    }
+
+    public static <T> Predicate<T> makeGreaterThanPred(Function<T, Double> getter, double val){
+        return x -> getter.apply(x) > val;
+    }
+
+    public static <T, V> Predicate<T> predicateOperator(String op,
+                                                        Function<T, V> getter,
+                                                        V val){
+        switch (op){
+            case "==":
+            case "=":
+                return makeEqualPredicate(getter, val);
+            case "!=":
+            case "/=":
+                return makeEqualPredicate(getter, val).negate();
+        }
+        return null;
+    }
+
+    public static <T> Predicate<T> predicateOperator(String op,
+                                                        Function<T, Integer> getter,
+                                                        int val){
+        switch (op){
+            case "==":
+            case "=":
+                return makeEqualPredicate(getter, val);
+            case "!=":
+            case "/=":
+                return makeEqualPredicate(getter, val).negate();
+            case "<":
+                return makeLessThanPredicate(getter, val);
+            case ">":
+                return makeGreaterThanPred(getter, val);
+            case ">=":
+                return makeLessThanPredicate(getter, val).negate();
+            case "<=":
+                return makeGreaterThanPred(getter, val).negate();
+            default:
+                return null;
+        }
+    }
+
+    public static <T> Predicate<T> predicateOperator(String op,
+                                                     Function<T, Double> getter,
+                                                     double val){
+        switch (op){
+            case "==":
+            case "=":
+                return makeEqualPredicate(getter, val);
+            case "!=":
+            case "/=":
+                return makeEqualPredicate(getter, val).negate();
+            case "<":
+                return makeLessThanPredicate(getter, val);
+            case ">":
+                return makeGreaterThanPred(getter, val);
+            case ">=":
+                return makeLessThanPredicate(getter, val).negate();
+            case "<=":
+                return makeGreaterThanPred(getter, val).negate();
+            default:
+                return null;
+        }
+    }
+
     public static Predicate<ComDepReg> parsePredicate(String pred){
 
         Matcher m = predPattern.matcher(pred);
