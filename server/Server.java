@@ -8,7 +8,6 @@ import java.io.*;
  */
 public class Server {
     public static String jdbc = null, dbuser = null, dbpass = null;
-    public static final boolean local = false;
 
     /**
      * @param args takes an optional port number default is 8080
@@ -35,16 +34,6 @@ public class Server {
             dbpass = args[4];
 
 		ServerSocket ss = new ServerSocket(port);
-
-		if (local){
-            if (Desktop.isDesktopSupported()) {
-                try {
-                    Desktop.getDesktop().browse(new URI("http://localhost:"+port));
-                } catch (URISyntaxException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
 
 		while (true) new Connection(ss.accept());
 	}

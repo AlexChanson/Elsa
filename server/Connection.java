@@ -13,6 +13,7 @@ import java.io.*;
 import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Properties;
 
@@ -105,7 +106,7 @@ class Connection implements Runnable {
         String token = requete.getParameter("key");
         if (tok.find(token, "token") != null){
             // Redirect to pipeline
-            Command cmd = gson.fromJson("{ \"parameters\" : " + requete.getBody() + " }", Command.class);
+            Command cmd = gson.fromJson("{\"api_key\":\"" + token + "\", \"parameters\" : " + requete.getBody() + "}", Command.class);
             try {
                 RequestResult result = PipelineFactory.getPipeline().handle(cmd);
                 if (requete.supportsGzip()){
@@ -126,7 +127,7 @@ class Connection implements Runnable {
             }
             catch (Exception e){
                 // Exception thrown in the pipeline returning 500 error code to client
-                String err = "{\"error\":\"" + e.toString().replace("\n", "\t")+ "\"}";
+                String err = String.format("{\"exception\":\"%s\", \"stacktrace\":\"%s\"}", e.toString(), Arrays.toString(e.getStackTrace()));
                 ans.setCode(HttpAns._500).setLen(err.length()).setType(HttpAns._json);
                 printResponse(ans.build(), err);
             }

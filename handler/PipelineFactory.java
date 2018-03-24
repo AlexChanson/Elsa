@@ -1,6 +1,10 @@
 package handler;
 
 import handler.concrete.*;
+import handler.concrete.GetCityNames;
+import handler.concrete.GetDepartements;
+import handler.concrete.GetRegions;
+import handler.concrete.LoadCSV;
 
 /**
  * Builds the chain of responsibility for handling requests
@@ -15,6 +19,7 @@ public class PipelineFactory {
         staticDispatch.registerHandler("getCityNames", new GetCityNames());
         staticDispatch.registerHandler("compareCities", new CompareCities());
         staticDispatch.registerHandler("compareCitiesWithSelected", new CompareCitiesWithSelected());
+        staticDispatch.registerHandler("loadCSV", new LoadCSV());
     }
 
     public static Handler<RequestResult> getPipeline(){
