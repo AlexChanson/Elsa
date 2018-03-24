@@ -3,6 +3,7 @@ package request;
 import beans.ComDepReg;
 import beans.Commune;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -13,6 +14,7 @@ public class Utilities {
 
     private static HashMap<String, Function<Commune, Double>> commDoubleGetters;
     private static HashMap<String, Function<Commune, Long>> commLongGetters;
+    private static HashMap<String, Function<Commune, String>> commStringGetters;
 
     static {
         commDoubleGetters = new HashMap<>();
@@ -27,6 +29,13 @@ public class Utilities {
         commLongGetters.put("actifs2015", intToLongGetter(Commune::getNb_actifs_2015));
         commLongGetters.put("etudiants", intToLongGetter(Commune::getNb_etudiants));
         commLongGetters.put("population2015", intToLongGetter(Commune::getPop_2015));
+
+        commStringGetters = new HashMap<>();
+        commStringGetters.put("code_insee", Commune::getCode_insee);
+        commStringGetters.put("num_dep", Commune::getNum_dep);
+        commStringGetters.put("ev_pop", Commune::getEvolution_pop);
+        commStringGetters.put("env_demo", Commune::getEnv_demo);
+        commStringGetters.put("fidelite", Commune::getFidelite);
     }
 
     public final static Pattern predPattern = Pattern.compile(
@@ -59,6 +68,18 @@ public class Utilities {
         }
 
         return null;
+    }
+
+    public static Function<Commune, String> stringCommuneGetter(String attribute){
+        if (attribute != null){
+            attribute = attribute.toLowerCase();
+            return commStringGetters.get(attribute);
+        }
+        return null;
+    }
+
+    public static <T, V> Predicate<T> makeEqualPredicate(Function<T, V> getter, V val ){
+        return x -> getter.apply(x).equals(val);
     }
 
     public static Predicate<ComDepReg> parsePredicate(String pred){
@@ -115,7 +136,8 @@ public class Utilities {
             }else {
                 switch (op){
                     case "==":
-                    case "=": break;
+                    case "=":
+                        break;
                     case "!=":
                     case "/=": break;
                 }
@@ -124,6 +146,15 @@ public class Utilities {
         }
 
         return null;
+    }
+
+    /**
+     * @param preds a predicate list
+     * @param <T>
+     * @return a single predicate returning true if all predicates are returning true
+     */
+    public static <T> Predicate<T> predicateAndSum(ArrayList<Predicate<T>> preds){
+        return preds.stream().reduce(x -> true, (p1,p2) -> p1.and(p2) );
     }
 
 
