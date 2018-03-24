@@ -16,7 +16,15 @@ public class Region {
     private int pib, pop, actifs, actifs_sal, actifs_nonsal, inst_pub, etudiants;
 
     @DaoConstructor
-    public Region(int num, String nom, double moy_sal_h, int pib, int pop, int actifs, int actifs_sal, int actifs_nonsal, int inst_pub, int etudiants) {
+    public Region(int num,
+                  String nom,
+                  double moy_sal_h,
+                  int pib, int pop,
+                  int actifs,
+                  int actifs_sal,
+                  int actifs_nonsal,
+                  int inst_pub,
+                  int etudiants) {
         this.num = num;
         this.nom = nom;
         this.moy_sal_h = moy_sal_h;

@@ -16,7 +16,16 @@ public class Departement {
     private int pop_2015, actifs, actifs_sal, actifs_nonsal, inst_pub, etudiants;
 
     @DaoConstructor
-    public Departement(String num, String nom, int num_reg, double moy_sal_h, int pop_2015, int actifs, int actifs_sal, int actifs_nonsal, int inst_pub, int etudiants) {
+    public Departement(String num,
+                       String nom,
+                       int num_reg,
+                       double moy_sal_h,
+                       int pop_2015,
+                       int actifs,
+                       int actifs_sal,
+                       int actifs_nonsal,
+                       int inst_pub,
+                       int etudiants) {
         this.num = num;
         this.nom = nom;
         this.num_reg = num_reg;
