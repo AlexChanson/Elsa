@@ -1,20 +1,21 @@
 package dao;
 
 import beans.Departement;
+import beans.DepartementSimple;
 import beans.Region;
 
 import java.util.HashMap;
 
 public class FlyweightManager {
     private static HashMap<Integer, Region> regions;
-    private static HashMap<String, Departement> departements;
+    private static HashMap<String, DepartementSimple> departements;
 
     static {
         regions = new HashMap<>();
         departements = new HashMap<>();
     }
 
-    public static Region getFlyweight(int reg_num,
+    public static Region regionGetFlyweight(int reg_num,
                                       String nom,
                                       double moy_sal_h,
                                       int pib, int pop,
@@ -23,6 +24,7 @@ public class FlyweightManager {
                                       int actifs_nonsal,
                                       int inst_pub,
                                       int etudiants){
+
         Region reg = regions.get(reg_num);
         if (reg == null){
             reg = new Region(reg_num,
@@ -39,29 +41,16 @@ public class FlyweightManager {
         return reg;
     }
 
-    public static Departement deptGetFlyweight(String dept_num,
-                                               String nom,
-                                               int num_reg,
-                                               double moy_sal_h,
-                                               int pop_2015,
-                                               int actifs,
-                                               int actifs_sal,
-                                               int actifs_nonsal,
-                                               int inst_pub,
-                                               int etudiants){
-        Departement dept = departements.get(dept_num);
+    public static DepartementSimple deptGetFlyweight(String dept_num,
+                                                     String nom,
+                                                     int num_reg){
+
+        DepartementSimple dept = departements.get(dept_num);
 
         if (dept == null){
-            dept = new Departement(dept_num,
+            dept = new DepartementSimple(dept_num,
                         nom,
-                        num_reg,
-                        moy_sal_h,
-                        pop_2015,
-                        actifs,
-                        actifs_sal,
-                        actifs_nonsal,
-                        inst_pub,
-                        etudiants);
+                        num_reg);
             departements.put(dept_num, dept);
         }
 
