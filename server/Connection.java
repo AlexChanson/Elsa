@@ -19,6 +19,7 @@ import java.util.Properties;
 
 class Connection implements Runnable {
 
+    private static boolean DEBUG = true;
     //Web directory definition
     public static String wwwDir = "~/www";
     static {
@@ -127,7 +128,7 @@ class Connection implements Runnable {
             }
             catch (Exception e){
                 // Exception thrown in the pipeline returning 500 error code to client
-                String err = String.format("{\"exception\":\"%s\", \"stacktrace\":\"%s\"}", e.toString(), Arrays.toString(e.getStackTrace()));
+                String err = String.format("{\"exception\":\"%s\", \"stacktrace\":\"%s\"}", e.toString(), DEBUG ? Arrays.toString(e.getStackTrace()) : "ENABLE DEBUG MODE FOR STACKTRACE");
                 ans.setCode(HttpAns._500).setLen(err.length()).setType(HttpAns._json);
                 printResponse(ans.build(), err);
             }
