@@ -25,14 +25,17 @@ public class LoadCSV implements Handler<RequestResult> {
         final int userID = (int) (new BasicVirtualTable<Token>(Token.class)).find(c.getApiKey(), "token").getUser_id();
         Collection<String> lines = (Collection<String>) c.getParameter("csv");
         BasicVirtualTable<UserCommune> destination = new BasicVirtualTable<>(UserCommune.class);
-        lines.forEach(line -> {
+        int i = 0;
+        for (String line : lines) {
             String[] e = line.split(";");
-            destination.add(new UserCommune(e[0], userID, parseInt(e[1]), parseInt(e[2]), parseInt(e[3]), parseInt(e[4])));
-        });
+            if (!destination.addBean(new UserCommune(e[0], userID, parseInt(e[1]), parseInt(e[2]), parseInt(e[3]), parseInt(e[4]))))
+                i++;
+        }
+        final int temp = i;
         return new RequestResult() {
             @Override
             public String toJson() {
-                return "{\"status\":\"success\"}";
+                return String.format("{\"status\":\"done\", \"errors\": %d }", temp);
             }
         };
     }

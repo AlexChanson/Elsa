@@ -139,6 +139,18 @@ public class BasicVirtualTable<T> implements VirtualTable<T>{
         return true;
     }
 
+    public boolean addBean(DBBean bean){
+        String query = String.format("INSERT INTO %s %s VALUES (%s);", tableName, columns, bean.insertToString());
+        try {
+            Statement statement = MYSQL.getConnection().createStatement();
+            statement.executeUpdate(query);
+            statement.close();
+            return true;
+        } catch (SQLException e) {
+            return false;
+        }
+    }
+
     @Override
     public boolean update(Object key, T o) {
         //TODO update method

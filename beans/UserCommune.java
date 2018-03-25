@@ -1,10 +1,11 @@
 package beans;
 
+import dao.DBBean;
 import dao.DaoConstructor;
 import dao.Entity;
 
 @Entity(tableName = "Commune_user")
-public class UserCommune {
+public class UserCommune implements DBBean{
     private String CODE_INSEE;
     private int USER_ID, ANNEE, POPULATION, ACTIFS, CHOMEURS;
 
@@ -16,6 +17,11 @@ public class UserCommune {
         this.POPULATION = POPULATION;
         this.ACTIFS = ACTIFS;
         this.CHOMEURS = CHOMEURS;
+    }
+
+    @Override
+    public String insertToString() {
+        return String.format("\"%s\", %d, %d, %d, %d, %d", CODE_INSEE, USER_ID, ANNEE, POPULATION, ACTIFS, CHOMEURS);
     }
 
     public String getCODE_INSEE() {
