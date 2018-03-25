@@ -1,5 +1,6 @@
 package handler;
 
+import core.RequestMalformedException;
 import handler.concrete.*;
 import handler.concrete.GetCityNames;
 import handler.concrete.GetDepartements;
@@ -25,6 +26,12 @@ public class PipelineFactory {
     public static Handler<RequestResult> getPipeline(){
         HandlerChain<RequestResult> chain = new HandlerChain<>();
         chain.addHandler(staticDispatch);
+        chain.addHandler(command -> new RequestResult() {
+            @Override
+            public String toJson() {
+                return "{\"error\":\"no handler for this request\"}";
+            }
+        });
         return chain;
     }
 }
