@@ -34,4 +34,12 @@ public class DepartementSimple {
         return num_reg;
     }
 
+    @Override
+    public String toString() {
+        return "DepartementSimple{" +
+                "num='" + num + '\'' +
+                ", nom='" + nom + '\'' +
+                ", num_reg=" + num_reg +
+                '}';
+    }
 }

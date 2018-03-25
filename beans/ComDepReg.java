@@ -89,4 +89,13 @@ public class ComDepReg {
     public Region getRegion() {
         return region;
     }
+
+    @Override
+    public String toString() {
+        return "ComDepReg{" +
+                "commune=" + commune.toString() +
+                ", departement=" + departement.toString() +
+                ", region=" + region.toString() +
+                '}';
+    }
 }

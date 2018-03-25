@@ -76,4 +76,20 @@ public class Region {
     public int getEtudiants() {
         return etudiants;
     }
+
+    @Override
+    public String toString() {
+        return "Region{" +
+                "num=" + num +
+                ", nom='" + nom + '\'' +
+                ", moy_sal_h=" + moy_sal_h +
+                ", pib=" + pib +
+                ", pop=" + pop +
+                ", actifs=" + actifs +
+                ", actifs_sal=" + actifs_sal +
+                ", actifs_nonsal=" + actifs_nonsal +
+                ", inst_pub=" + inst_pub +
+                ", etudiants=" + etudiants +
+                '}';
+    }
 }
