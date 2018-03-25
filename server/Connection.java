@@ -131,6 +131,8 @@ class Connection implements Runnable {
                 String err = String.format("{\"exception\":\"%s\", \"stacktrace\":\"%s\"}", e.toString(), DEBUG ? Arrays.toString(e.getStackTrace()) : "ENABLE DEBUG MODE FOR STACKTRACE");
                 ans.setCode(HttpAns._500).setLen(err.length()).setType(HttpAns._json);
                 printResponse(ans.build(), err);
+                System.out.println("Exception raised!");
+                e.printStackTrace();
             }
 
         }else {
