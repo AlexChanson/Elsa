@@ -107,7 +107,9 @@ class Connection implements Runnable {
         String token = requete.getParameter("key");
         if (tok.find(token, "token") != null){
             // Redirect to pipeline
-            Command cmd = gson.fromJson("{\"api_key\":\"" + token + "\", \"parameters\" : " + requete.getBody() + "}", Command.class);
+            String json = String.format("{\"api_key\":\"%s\", \"parameters\" : %s}", token, requete.getBody());
+            //System.out.println(json);
+            Command cmd = gson.fromJson(json, Command.class);
             try {
                 RequestResult result = PipelineFactory.getPipeline().handle(cmd);
                 if (requete.supportsGzip()){
