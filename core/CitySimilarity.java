@@ -30,14 +30,14 @@ public class CitySimilarity {
         double urbaniteDist = Math.pow((commune1.getScore_urbanite()-commune2.getScore_urbanite())/
                 Math.max(commune1.getScore_urbanite(), commune2.getScore_urbanite()),2);
 
-
+        /*
         System.out.println(actifsDist);
         System.out.println(actifs2015Dist);
         System.out.println(publicEtDist);
         System.out.println(nbEtuDist);
         System.out.println(evPopDist);
         System.out.println(fideliteDist);
-        System.out.println(urbaniteDist);
+        System.out.println(urbaniteDist);*/
 
         return (actifsDist+actifs2015Dist+publicEtDist+nbEtuDist+evPopDist+fideliteDist+urbaniteDist)/7;
     }

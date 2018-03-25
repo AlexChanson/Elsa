@@ -48,18 +48,14 @@ public class CompareCities implements Handler<RequestResult> {
         Commune c1 = bvt.find(citycode1);
         Commune c2 = bvt.find(citycode2);
 
-        System.out.println(c1.toString());
-        System.out.println(c2.toString());
+        //System.out.println(c1.toString());
+        //System.out.println(c2.toString());
 
         CitySimilarity comparator = new CitySimilarity();
 
         ComparisonResult res = new ComparisonResult(c1,c2, comparator.calculateDistance(c1,c2));
 
-        System.out.println("res = "+res);
-
         String buffer = Utility.gson.toJson(res);
-
-        System.out.println("buffer = "+buffer);
 
         return new RequestResult() {
             @Override
