@@ -4,7 +4,9 @@ import beans.ComDepReg;
 import beans.Commune;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
@@ -15,6 +17,23 @@ public class Utilities {
     private static HashMap<String, Function<Commune, Double>> commDoubleGetters;
     private static HashMap<String, Function<Commune, Long>> commLongGetters;
     private static HashMap<String, Function<Commune, String>> commStringGetters;
+
+    public static final List<String> supportedFilters;
+    static {
+        supportedFilters = Arrays.asList(
+                "superficie",
+                "indice_demographique",
+                "score_urbanite",
+                "score_croissance_pop",
+                "etablissements",
+                "actifs2010",
+                "actifs2015",
+                "etudiants",
+                "population2015",
+                "code_insee",
+                ""
+        );
+    }
 
     static {
         commDoubleGetters = new HashMap<>();
