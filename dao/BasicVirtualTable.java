@@ -134,6 +134,7 @@ public class BasicVirtualTable<T> implements VirtualTable<T>{
             statement.executeUpdate(query.toString());
             statement.close();
         } catch (SQLException e) {
+            e.printStackTrace();
             return false;
         }
         return true;

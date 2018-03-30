@@ -171,12 +171,16 @@ class Connection implements Runnable {
         String nom = params.get("nom");
         String prenom = params.get("prenom");
         String password = params.get("password");
+        System.out.println(params);
 
+        BasicVirtualTable<User> userTable = new BasicVirtualTable<User>(User.class);
         User jeanPierre = new User(email, nom, prenom, Utility.hashSHA256(password));
 
-        if((new BasicVirtualTable<User>(User.class)).add(jeanPierre)){
+        if(userTable.add(jeanPierre)){
             String api = Utility.hashSHA256(jeanPierre.getEmail());
-            (new BasicVirtualTable<Token>(Token.class)).add(new Token(jeanPierre.getUser_id(), api));
+            BasicVirtualTable<Token> tokenTable = new BasicVirtualTable<Token>(Token.class);
+            jeanPierre = userTable.find(email);
+            tokenTable.add(new Token(jeanPierre.getUser_id(), api));
             String body = String.format("{\"status\":\"success\", \"api_key\":\"%s\"}", api);
             ans.setType(HttpAns._json).setLen(body.length()).setCode(HttpAns._200);
             printResponse(ans.build(), body);
