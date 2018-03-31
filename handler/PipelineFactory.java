@@ -1,6 +1,5 @@
 package handler;
 
-import core.RequestMalformedException;
 import handler.concrete.*;
 import handler.concrete.GetCityNames;
 import handler.concrete.GetDepartements;

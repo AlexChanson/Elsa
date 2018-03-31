@@ -215,6 +215,7 @@ public class BasicVirtualTable<T> implements VirtualTable<T>{
 
         try {
             Statement statement = MYSQL.getConnection().createStatement();
+            statement.setFetchSize(50);
             statement.execute("SELECT * from " + tableName + ";");
             ResultSet resultSet = statement.getResultSet();
             return new ResultSetIterable<T>(resultSet, onNext).stream();
