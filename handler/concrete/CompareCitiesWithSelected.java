@@ -4,6 +4,7 @@ package handler.concrete;
 import beans.ComDepReg;
 import beans.Commune;
 import core.RequestMalformedException;
+import dao.BasicVirtualTable;
 import handler.Command;
 import handler.Handler;
 import handler.RequestResult;
@@ -14,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class CompareCitiesWithSelected implements Handler<RequestResult> {
@@ -59,8 +61,18 @@ public class CompareCitiesWithSelected implements Handler<RequestResult> {
 
         Predicate<ComDepReg> finalPred = Utilities.predicateAndSum(predsList);
 
+        BasicVirtualTable<ComDepReg> bvt = new BasicVirtualTable<>(ComDepReg.class);
 
+        ArrayList<ComDepReg> filtered = bvt.getStream().filter(finalPred).collect(Collectors.toCollection(ArrayList::new));
 
-        return null;
+        String result = Utility.gson.toJson(filtered);
+
+        System.out.println(result);
+        return new RequestResult() {
+            @Override
+            public String toJson() {
+                return result;
+            }
+        };
     }
 }
