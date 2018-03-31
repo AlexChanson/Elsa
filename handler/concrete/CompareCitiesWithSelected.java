@@ -67,7 +67,6 @@ public class CompareCitiesWithSelected implements Handler<RequestResult> {
 
         String result = Utility.gson.toJson(filtered);
 
-        System.out.println(result);
         return new RequestResult() {
             @Override
             public String toJson() {
