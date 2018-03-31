@@ -15,7 +15,7 @@ import java.util.regex.Pattern;
 public class Utilities {
 
     public final static Pattern predPattern = Pattern.compile(
-            "\\s*([a-zA-Z_]*)\\s*(=|==|<=|>=|>|<|!=|/=)\\s*('(\\w| |[éèêôîç])*'|\"(\\w| |[éèêôîç])*\"|[0-9]+\\.[0-9]+|[0-9]+)\\s*");
+            "\\s*([a-zA-Z_]*)\\s*(=|==|<=|>=|>|<|!=|/=)\\s*('[^\"']*'|\"[^\"']*\"|[0-9]+\\.[0-9]+|[0-9]+)\\s*");
 
     private static HashMap<String, Function<Commune, Double>> commDoubleGetters;
     private static HashMap<String, Function<Commune, Long>> commLongGetters;
