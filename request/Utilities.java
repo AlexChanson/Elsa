@@ -15,7 +15,7 @@ import java.util.regex.Pattern;
 public class Utilities {
 
     public final static Pattern predPattern = Pattern.compile(
-            "\\s*([a-zA-Z_]*)\\s*([!=/><]+)\\s*('\\w*'|\"\\w*\"|[0-9]+\\.[0-9]+|[0-9]+)\\s*");
+            "\\s*([a-zA-Z_]*)\\s*(=|==|<=|>=|>|<|!=|/=)\\s*('(\\w| |[éèêôîç])*'|\"(\\w| |[éèêôîç])*\"|[0-9]+\\.[0-9]+|[0-9]+)\\s*");
 
     private static HashMap<String, Function<Commune, Double>> commDoubleGetters;
     private static HashMap<String, Function<Commune, Long>> commLongGetters;
@@ -182,9 +182,11 @@ public class Utilities {
 
             boolean isFloating = val.contains(".");
 
+            /*
             System.out.println("attr= "+attr);
             System.out.println("op= "+op);
             System.out.println("val= "+val+" is number= "+String.valueOf(isNumber)+" is floating= "+String.valueOf(isFloating));
+            */
 
             if (isNumber ){
                 if (isFloating){
