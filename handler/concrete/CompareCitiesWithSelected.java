@@ -47,9 +47,19 @@ public class CompareCitiesWithSelected implements Handler<RequestResult> {
 
         Stream<Predicate<ComDepReg>> sp = filters.stream().map(x -> Utilities.parsePredicate(x));
 
-        sp.forEach(x -> {
-            System.out.println(x);
-        });
+        ArrayList<Predicate<ComDepReg>> predsList = new ArrayList<>();
+        int i = 0;
+        for (Predicate<ComDepReg> pred: (Iterable<Predicate<ComDepReg>>) sp::iterator) {
+            if (pred == null){
+                throw new RequestMalformedException("error in filters for filter: '" + filters.get(i) +"'");
+            }
+            predsList.add(pred);
+            i++;
+        }
+
+        Predicate<ComDepReg> finalPred = Utilities.predicateAndSum(predsList);
+
+
 
         return null;
     }
