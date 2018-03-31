@@ -15,7 +15,7 @@ import java.util.regex.Pattern;
 public class Utilities {
 
     public final static Pattern predPattern = Pattern.compile(
-            "\\s*([a-zA-Z_]*)\\s*(=|==|<=|>=|>|<|!=|/=)\\s*('[^\"']*'|\"[^\"']*\"|[0-9]+\\.[0-9]+|[0-9]+)\\s*");
+            "\\s*([a-zA-Z_][a-zA-Z0-9_]*)\\s*(=|==|<=|>=|>|<|!=|/=)\\s*('[^\"']*'|\"[^\"']*\"|[0-9]+\\.[0-9]+|[0-9]+)\\s*");
 
     private static HashMap<String, Function<Commune, Double>> commDoubleGetters;
     private static HashMap<String, Function<Commune, Long>> commLongGetters;
@@ -62,14 +62,7 @@ public class Utilities {
         }
         attribute = attribute.toLowerCase();
 
-        switch (attribute){
-            case "actifs":
-                return x -> (long) x.getActifs_2010();
-            case "etablissements":
-                return x -> x.getNb_etablissements();
-        }
-
-        return null;
+        return commLongGetters.get(attribute);
     }
 
     public static Function<Commune, String> stringCommuneGetter(String attribute){
@@ -199,6 +192,11 @@ public class Utilities {
                 }
                 else {
                     Function<Commune, Long> getter = longCommuneGetter(attr);
+
+                    if (getter == null){
+                        System.out.println("could not find longGetter for attr: "+attr);
+                    }
+
                     Predicate<Commune> finalPred = predicateOperator(op, getter, Long.parseLong(val));
                     if (getter == null || finalPred == null){
                         return null;
