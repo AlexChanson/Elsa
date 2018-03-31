@@ -177,16 +177,16 @@ public class Utilities {
 
             if (val.startsWith("\"") || val.startsWith("'")){
                 isNumber = false;
-                val = val.substring(1,val.length()-2);
+                val = val.substring(1,val.length()-1);
             }
 
             boolean isFloating = val.contains(".");
 
-            /*
+
             System.out.println("attr= "+attr);
             System.out.println("op= "+op);
             System.out.println("val= "+val+" is number= "+String.valueOf(isNumber)+" is floating= "+String.valueOf(isFloating));
-            */
+
 
             if (isNumber ){
                 if (isFloating){
