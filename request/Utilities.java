@@ -14,26 +14,12 @@ import java.util.regex.Pattern;
 
 public class Utilities {
 
+    public final static Pattern predPattern = Pattern.compile(
+            "\\s*([a-zA-Z_]*)\\s*([!=/><]+)\\s*('\\w*'|\"\\w*\"|[0-9]+\\.[0-9]+|[0-9]+)\\s*");
+
     private static HashMap<String, Function<Commune, Double>> commDoubleGetters;
     private static HashMap<String, Function<Commune, Long>> commLongGetters;
     private static HashMap<String, Function<Commune, String>> commStringGetters;
-
-    public static final List<String> supportedFilters;
-    static {
-        supportedFilters = Arrays.asList(
-                "superficie",
-                "indice_demographique",
-                "score_urbanite",
-                "score_croissance_pop",
-                "etablissements",
-                "actifs2010",
-                "actifs2015",
-                "etudiants",
-                "population2015",
-                "code_insee",
-                ""
-        );
-    }
 
     static {
         commDoubleGetters = new HashMap<>();
@@ -56,9 +42,6 @@ public class Utilities {
         commStringGetters.put("env_demo", Commune::getEnv_demo);
         commStringGetters.put("fidelite", Commune::getFidelite);
     }
-
-    public final static Pattern predPattern = Pattern.compile(
-            "\\s*([a-zA-Z_]*)\\s*([!=/><]+)\\s*('\\w*'|\"\\w*\"|[0-9]+\\.[0-9]+|[0-9]+)\\s*");
 
     public static Function<Commune, Long> intToLongGetter(Function<Commune, Integer> f){
         return x -> Long.valueOf(f.apply(x));
@@ -105,11 +88,11 @@ public class Utilities {
         return x -> getter.apply(x) < val;
     }
 
-    public static <T> Predicate<T> makeLessThanPredicate(Function<T, Integer> getter, int val){
+    public static <T> Predicate<T> makeLessThanPredicate(Function<T, Long> getter, long val){
         return x -> getter.apply(x) < val;
     }
 
-    public static <T> Predicate<T> makeGreaterThanPred(Function<T, Integer> getter, int val){
+    public static <T> Predicate<T> makeGreaterThanPred(Function<T, Long> getter, long val){
         return x -> getter.apply(x) > val;
     }
 
@@ -132,8 +115,8 @@ public class Utilities {
     }
 
     public static <T> Predicate<T> predicateOperator(String op,
-                                                        Function<T, Integer> getter,
-                                                        int val){
+                                                        Function<T, Long> getter,
+                                                        long val){
         switch (op){
             case "==":
             case "=":
@@ -177,6 +160,10 @@ public class Utilities {
         }
     }
 
+    public static Predicate<ComDepReg> promoteCommPredicate(Predicate<Commune> pred){
+        return x -> pred.test(x.getCommune());
+    }
+
     public static Predicate<ComDepReg> parsePredicate(String pred){
 
         Matcher m = predPattern.matcher(pred);
@@ -201,41 +188,29 @@ public class Utilities {
 
             if (isNumber ){
                 if (isFloating){
-                    switch (op){
-                        case "==":
-                        case "=":
-                            return comDepReg -> false;
-                        case "!=":
-                        case "/=":
-                            break;
-                        case "<=": break;
-                        case ">=": break;
-                        case "<": break;
-                        case ">": break;
+                    Function<Commune, Double> getter = doubleCommuneGetter(attr);
+                    Predicate<Commune> finalPred = predicateOperator(op, getter, Double.parseDouble(val));
+                    if (getter == null || finalPred == null){
+                        return null;
                     }
+                    return promoteCommPredicate(finalPred);
                 }
                 else {
-                    switch (op){
-                        case "==":
-                        case "=":
-                            return comDepReg -> false;
-                        case "!=":
-                        case "/=":
-                            break;
-                        case "<=": break;
-                        case ">=": break;
-                        case "<": break;
-                        case ">": break;
+                    Function<Commune, Long> getter = longCommuneGetter(attr);
+                    Predicate<Commune> finalPred = predicateOperator(op, getter, Long.parseLong(val));
+                    if (getter == null || finalPred == null){
+                        return null;
                     }
+                    return promoteCommPredicate(finalPred);
+
                 }
             }else {
-                switch (op){
-                    case "==":
-                    case "=":
-                        break;
-                    case "!=":
-                    case "/=": break;
+                Function<Commune, String> getter = stringCommuneGetter(attr);
+                Predicate<Commune> finalPred = predicateOperator(op, getter, val);
+                if (getter == null || finalPred == null){
+                    return null;
                 }
+                return promoteCommPredicate(finalPred);
             }
 
         }
