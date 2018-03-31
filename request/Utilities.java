@@ -175,12 +175,6 @@ public class Utilities {
 
             boolean isFloating = val.contains(".");
 
-
-            System.out.println("attr= "+attr);
-            System.out.println("op= "+op);
-            System.out.println("val= "+val+" is number= "+String.valueOf(isNumber)+" is floating= "+String.valueOf(isFloating));
-
-
             if (isNumber ){
                 if (isFloating){
                     Function<Commune, Double> getter = doubleCommuneGetter(attr);
@@ -192,10 +186,6 @@ public class Utilities {
                 }
                 else {
                     Function<Commune, Long> getter = longCommuneGetter(attr);
-
-                    if (getter == null){
-                        System.out.println("could not find longGetter for attr: "+attr);
-                    }
 
                     Predicate<Commune> finalPred = predicateOperator(op, getter, Long.parseLong(val));
                     if (getter == null || finalPred == null){
