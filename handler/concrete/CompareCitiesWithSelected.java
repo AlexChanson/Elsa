@@ -12,10 +12,8 @@ import handler.RequestResult;
 import handler.Utility;
 import request.Utilities;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -71,12 +69,18 @@ public class CompareCitiesWithSelected implements Handler<RequestResult> {
         private final ArrayList<ComparisonResult> withB;
         private final ComDepReg cityA;
         private final ComDepReg cityB;
+        private final Map<Integer, Long> countByRegion;
 
-        public FinalResult(ArrayList<ComparisonResult> withA, ArrayList<ComparisonResult> withB, ComDepReg cityA, ComDepReg cityB) {
+        public FinalResult(ArrayList<ComparisonResult> withA,
+                           ArrayList<ComparisonResult> withB,
+                           ComDepReg cityA,
+                           ComDepReg cityB,
+                           Map<Integer, Long> countByRegion) {
             this.withA = withA;
             this.withB = withB;
             this.cityA = cityA;
             this.cityB = cityB;
+            this.countByRegion = countByRegion;
         }
     }
 
@@ -150,6 +154,9 @@ public class CompareCitiesWithSelected implements Handler<RequestResult> {
                         cs.calculateDistance(x.getCommune(), cityB.getCommune()), x))
                 .collect(Collectors.toCollection(ArrayList::new));
 
+        Map<Integer, Long> countByRegion = filtered.stream()
+                .collect(Collectors.groupingBy(x -> x.getComDepReg().getNum_reg(), Collectors.counting()));
+
         ArrayList<ComparisonResult> withCityA = filtered.stream()
                 .map(x -> new ComparisonResult(x.similarityToA, x.getComDepReg()))
                 .sorted(Comparator.comparingDouble(ComparisonResult::getSimilarity))
@@ -163,7 +170,7 @@ public class CompareCitiesWithSelected implements Handler<RequestResult> {
                 .collect(Collectors.toCollection(ArrayList::new));
 
 
-        String result = Utility.gson.toJson(new FinalResult(withCityA, withCityB, cityA, cityB));
+        String result = Utility.gson.toJson(new FinalResult(withCityA, withCityB, cityA, cityB, countByRegion));
 
         return new RequestResult() {
             @Override
