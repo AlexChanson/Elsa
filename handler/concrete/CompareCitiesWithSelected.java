@@ -115,19 +115,24 @@ public class CompareCitiesWithSelected implements Handler<RequestResult> {
         private final ComDepReg cityB;
         private final Map<Integer, Long> countByRegion;
         private final Means means;
+        private final List<UserCommune> userCommunesA;
+        private final List<UserCommune> userCommunesB;
 
         public FinalResult(ArrayList<ComparisonResult> withA,
                            ArrayList<ComparisonResult> withB,
                            ComDepReg cityA,
                            ComDepReg cityB,
                            Map<Integer, Long> countByRegion,
-                           Means means) {
+                           Means means, List<UserCommune> userCommunesA,
+                           List<UserCommune> userCommunesB) {
             this.withA = withA;
             this.withB = withB;
             this.cityA = cityA;
             this.cityB = cityB;
             this.countByRegion = countByRegion;
             this.means = means;
+            this.userCommunesA = userCommunesA;
+            this.userCommunesB = userCommunesB;
         }
     }
 
@@ -266,7 +271,13 @@ public class CompareCitiesWithSelected implements Handler<RequestResult> {
                 .collect(Collectors.toCollection(ArrayList::new));
 
         BasicVirtualTable<UserCommune> userCommuneBasicVirtualTable = new BasicVirtualTable<>(UserCommune.class);
-        ArrayList<UserCommune> userCommunesA = null;
+        List<UserCommune> userCommunesA = userCommuneBasicVirtualTable.findAll(
+                command.getUID(), "USER_ID",
+                citycode1, "CODE_INSEE");
+
+        List<UserCommune> userCommunesB = userCommuneBasicVirtualTable.findAll(
+                command.getUID(), "USER_ID",
+                citycode2, "CODE_INSEE");
 
         String result = Utility.gson.toJson(
                 new FinalResult(withCityA,
@@ -274,7 +285,9 @@ public class CompareCitiesWithSelected implements Handler<RequestResult> {
                                 cityA,
                                 cityB,
                                 countByRegion,
-                                means));
+                                means,
+                                userCommunesA,
+                                userCommunesB));
 
         return new RequestResult() {
             @Override

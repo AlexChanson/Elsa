@@ -4,9 +4,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -135,7 +133,7 @@ public class BasicVirtualTable<T> implements VirtualTable<T>{
     public List<T> findAll(Object key1, String colName1, Object key2, String colName2){
         if (key1 == null || key2 == null)
             return null;
-        String query = String.format("SELECT * from %s WHERE %s = %s AND %s = %s ;", tableName, colName1, formatObjToString(key1), colName2, formatObjToString(key2));
+        String query = String.format("SELECT * from %s WHERE (%s = %s OR %s = -1) AND %s = %s ;", tableName, colName1, formatObjToString(key1), colName1, colName2, formatObjToString(key2));
         Object[] params = null;
         List<T> ret = new ArrayList<>();
         try {
