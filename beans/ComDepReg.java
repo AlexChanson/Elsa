@@ -20,7 +20,7 @@ public class ComDepReg {
 
     // Region attributes
     private final String nom_region;
-    private final double moy_sal_h;
+    private final double moy_sal_h_reg;
     private final int pib_reg,
             pop_reg,
             reg_nb_actifs,
@@ -49,14 +49,14 @@ public class ComDepReg {
     private final long nb_etablissements;
 
     @DaoConstructor
-    public ComDepReg(String code_insee, String nom, String num_dep, String nom_dept, int num_reg, String nom_region, double moy_sal_h, int pib_reg, int pop_reg, int reg_nb_actifs, int reg_nb_actifs_sal, int reg_nb_actifs_nonsal, int reg_nb_inst_pub, int reg_nb_etudiants, double superficie, int actifs_2010, int med_r_f_uc_2010, int pop_2015, String evolution_pop, double indice_demo, double score_urbanite, int nb_actifs_2015, int nb_actifs_sal_2015, int nb_actifs_nonSal_2015, int dyn_demo_insee, int nb_inst_pub, double score_croiss_pop, String env_demo, String fidelite, int nb_etudiants, long nb_etablissements) {
+    public ComDepReg(String code_insee, String nom, String num_dep, String nom_dept, int num_reg, String nom_region, double moy_sal_h_reg, int pib_reg, int pop_reg, int reg_nb_actifs, int reg_nb_actifs_sal, int reg_nb_actifs_nonsal, int reg_nb_inst_pub, int reg_nb_etudiants, double superficie, int actifs_2010, int med_r_f_uc_2010, int pop_2015, String evolution_pop, double indice_demo, double score_urbanite, int nb_actifs_2015, int nb_actifs_sal_2015, int nb_actifs_nonSal_2015, int dyn_demo_insee, int nb_inst_pub, double score_croiss_pop, String env_demo, String fidelite, int nb_etudiants, long nb_etablissements) {
         this.code_insee = code_insee;
         this.nom = nom;
         this.num_dep = num_dep;
         this.nom_dept = nom_dept;
         this.num_reg = num_reg;
         this.nom_region = nom_region;
-        this.moy_sal_h = moy_sal_h;
+        this.moy_sal_h_reg = moy_sal_h_reg;
         this.pib_reg = pib_reg;
         this.pop_reg = pop_reg;
         this.reg_nb_actifs = reg_nb_actifs;
@@ -92,7 +92,7 @@ public class ComDepReg {
                 ", nom_dept='" + nom_dept + '\'' +
                 ", num_reg=" + num_reg +
                 ", nom_region='" + nom_region + '\'' +
-                ", moy_sal_h=" + moy_sal_h +
+                ", moy_sal_h_reg=" + moy_sal_h_reg +
                 ", pib_reg=" + pib_reg +
                 ", pop_reg=" + pop_reg +
                 ", reg_nb_actifs=" + reg_nb_actifs +
@@ -146,7 +146,7 @@ public class ComDepReg {
     public Region getRegion(){
         return new Region(num_reg,
                 nom_region,
-                moy_sal_h,
+                moy_sal_h_reg,
                 pib_reg,
                 pop_reg,
                 reg_nb_actifs,
@@ -188,8 +188,8 @@ public class ComDepReg {
         return nom_region;
     }
 
-    public double getMoy_sal_h() {
-        return moy_sal_h;
+    public double getMoy_sal_h_reg() {
+        return moy_sal_h_reg;
     }
 
     public int getPib_reg() {

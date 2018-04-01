@@ -2,7 +2,7 @@ package handler.concrete;
 
 
 import beans.ComDepReg;
-import beans.Commune;
+import beans.UserCommune;
 import core.CitySimilarity;
 import core.RequestMalformedException;
 import dao.BasicVirtualTable;
@@ -13,7 +13,6 @@ import handler.Utility;
 import request.Utilities;
 
 import java.util.*;
-import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -64,23 +63,71 @@ public class CompareCitiesWithSelected implements Handler<RequestResult> {
         }
     }
 
+    public class Means{
+        long total_city_nb;
+
+        double mean_pop;
+        double mean_nb_etablissement;
+        double mean_nb_actifs2010;
+        double mean_dyn_demo_insee;
+        double mean_indice_demo;
+        double mean_actifs2015;
+        double mean_nb_etudiants;
+        double mean_score_urbanite;
+        double mean_superficie;
+        double mean_score_croissance_pop;
+        double mean_actifs_sal2015;
+        double mean_actifs_nonsal2015;
+
+        public Means(long total_city_nb,
+                     double mean_pop,
+                     double mean_nb_etablissement,
+                     double mean_nb_actifs2010,
+                     double mean_dyn_demo_insee,
+                     double mean_indice_demo,
+                     double mean_actifs2015,
+                     double mean_nb_etudiants,
+                     double mean_score_urbanite,
+                     double mean_superficie,
+                     double mean_score_croissance_pop,
+                     double mean_actifs_sal2015,
+                     double mean_actifs_nonsal2015) {
+            this.total_city_nb = total_city_nb;
+            this.mean_pop = mean_pop;
+            this.mean_nb_etablissement = mean_nb_etablissement;
+            this.mean_nb_actifs2010 = mean_nb_actifs2010;
+            this.mean_dyn_demo_insee = mean_dyn_demo_insee;
+            this.mean_indice_demo = mean_indice_demo;
+            this.mean_actifs2015 = mean_actifs2015;
+            this.mean_nb_etudiants = mean_nb_etudiants;
+            this.mean_score_urbanite = mean_score_urbanite;
+            this.mean_superficie = mean_superficie;
+            this.mean_score_croissance_pop = mean_score_croissance_pop;
+            this.mean_actifs_sal2015 = mean_actifs_sal2015;
+            this.mean_actifs_nonsal2015 = mean_actifs_nonsal2015;
+        }
+    }
+
     public class FinalResult{
         private final ArrayList<ComparisonResult> withA;
         private final ArrayList<ComparisonResult> withB;
         private final ComDepReg cityA;
         private final ComDepReg cityB;
         private final Map<Integer, Long> countByRegion;
+        private final Means means;
 
         public FinalResult(ArrayList<ComparisonResult> withA,
                            ArrayList<ComparisonResult> withB,
                            ComDepReg cityA,
                            ComDepReg cityB,
-                           Map<Integer, Long> countByRegion) {
+                           Map<Integer, Long> countByRegion,
+                           Means means) {
             this.withA = withA;
             this.withB = withB;
             this.cityA = cityA;
             this.cityB = cityB;
             this.countByRegion = countByRegion;
+            this.means = means;
         }
     }
 
@@ -154,6 +201,55 @@ public class CompareCitiesWithSelected implements Handler<RequestResult> {
                         cs.calculateDistance(x.getCommune(), cityB.getCommune()), x))
                 .collect(Collectors.toCollection(ArrayList::new));
 
+        long filteredNb = filtered.size();
+
+        long tot_nb_pop_2015 = 0;
+        long tot_nb_etablissement = 0;
+        long tot_nb_actifs2010 = 0;
+        long tot_dyn_demo_insee = 0;
+        double tot_indice_demo = 0;
+        long tot_nb_actifs2015 = 0;
+        long tot_nb_etudiants = 0;
+        double tot_score_urbanite = 0;
+        double tot_superficie = 0;
+        double tot_score_croissance_pop = 0;
+        long tot_actifs_sal2015 = 0;
+        long tot_actifs_nonsal2015 = 0;
+
+
+        for (DoubleComparisonResult x : filtered) {
+            ComDepReg c = x.getComDepReg();
+            tot_nb_pop_2015 += c.getPop_2015();
+            tot_nb_etablissement += c.getNb_etablissements();
+            tot_nb_actifs2010 += c.getActifs_2010();
+            tot_dyn_demo_insee += c.getDyn_demo_insee();
+            tot_indice_demo += c.getIndice_demo();
+            tot_nb_actifs2015 += c.getNb_actifs_2015();
+            tot_nb_etudiants += c.getNb_etudiants();
+            tot_score_urbanite += c.getScore_urbanite();
+            tot_superficie += c.getSuperficie();
+            tot_score_croissance_pop += c.getScore_croiss_pop();
+            tot_actifs_sal2015 += c.getNb_actifs_sal_2015();
+            tot_actifs_nonsal2015 += c.getNb_actifs_nonSal_2015();
+        }
+
+        Means means = new Means(
+                filteredNb,
+                (double)tot_nb_pop_2015/filteredNb,
+                (double)tot_nb_etablissement/filteredNb,
+                (double)tot_nb_actifs2010/filteredNb,
+                (double)tot_dyn_demo_insee/filteredNb,
+                (double)tot_indice_demo/filteredNb,
+                (double)tot_nb_actifs2015/filteredNb,
+                (double)tot_nb_etudiants/filteredNb,
+                tot_score_urbanite/filteredNb,
+                tot_superficie/filteredNb,
+                tot_score_croissance_pop/filteredNb,
+                (double)tot_actifs_sal2015/filteredNb,
+                (double)tot_actifs_nonsal2015/filteredNb
+        );
+
+
         Map<Integer, Long> countByRegion = filtered.stream()
                 .collect(Collectors.groupingBy(x -> x.getComDepReg().getNum_reg(), Collectors.counting()));
 
@@ -169,8 +265,16 @@ public class CompareCitiesWithSelected implements Handler<RequestResult> {
                 .limit(maxResults)
                 .collect(Collectors.toCollection(ArrayList::new));
 
+        BasicVirtualTable<UserCommune> userCommuneBasicVirtualTable = new BasicVirtualTable<>(UserCommune.class);
+        ArrayList<UserCommune> userCommunesA = null;
 
-        String result = Utility.gson.toJson(new FinalResult(withCityA, withCityB, cityA, cityB, countByRegion));
+        String result = Utility.gson.toJson(
+                new FinalResult(withCityA,
+                                withCityB,
+                                cityA,
+                                cityB,
+                                countByRegion,
+                                means));
 
         return new RequestResult() {
             @Override
