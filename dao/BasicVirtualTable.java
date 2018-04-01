@@ -51,12 +51,8 @@ public class BasicVirtualTable<T> implements VirtualTable<T>{
 
     @Override
     public boolean delete(Object key) {
-        String query = "DELETE FROM " + tableName + " WHERE ";
         Column c = this.key.getAnnotation(Column.class);
-        query += c != null ? c.name() : this.key.getName();
-        query += " = " + key instanceof String ? "\'" + key + "\"" : key.toString();
-        query += ";";
-
+        String query = String.format("DELETE FROM %s WHERE %s = %s ;", tableName, c != null ? c.name() : this.key.getName(), formatObjToString(key));
         try {
             Statement statement = MYSQL.getConnection().createStatement();
             statement.executeUpdate(query);
@@ -133,6 +129,37 @@ public class BasicVirtualTable<T> implements VirtualTable<T>{
             System.err.printf("Error on importing %s from %s with parameters (%s).%n", myClass.getSimpleName(), tableName, Arrays.toString(params));
             return null;
         }
+
+    }
+
+    public List<T> findAll(Object key1, String colName1, Object key2, String colName2){
+        if (key1 == null || key2 == null)
+            return null;
+        String query = String.format("SELECT * from %s WHERE %s = %s AND %s = %s ;", tableName, colName1, formatObjToString(key1), colName2, formatObjToString(key2));
+        Object[] params = null;
+        List<T> ret = new ArrayList<>();
+        try {
+            Statement statement = MYSQL.getConnection().createStatement();
+            statement.execute(query);
+            ResultSet resultSet = statement.getResultSet();
+            int paramsNb = myConstructor.getParameterCount();
+
+            params = new Object[paramsNb];
+            while (resultSet.next()) {
+                for (int i = 1; i <= paramsNb; ++i)
+                    params[i - 1] = resultSet.getObject(i);
+                resultSet.close();
+                statement.close();
+                ret.add( (T) myConstructor.newInstance(params));
+            }
+        }catch (SQLException e){
+            e.printStackTrace();
+
+        } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
+            System.err.printf("Error on importing %s from %s with parameters (%s).%n", myClass.getSimpleName(), tableName, Arrays.toString(params));
+
+        }
+        return ret;
 
     }
 
@@ -282,7 +309,7 @@ public class BasicVirtualTable<T> implements VirtualTable<T>{
         StringBuilder builder = new StringBuilder("(");
         list.forEach(cname -> {
             if (cname != null)
-                builder.append(cname + ",");
+                builder.append(cname).append(",");
         });
         builder.setCharAt(builder.lastIndexOf(","), ')');
         return builder.toString();
