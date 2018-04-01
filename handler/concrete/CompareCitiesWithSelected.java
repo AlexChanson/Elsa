@@ -6,6 +6,7 @@ import beans.UserCommune;
 import core.CitySimilarity;
 import core.RequestMalformedException;
 import dao.BasicVirtualTable;
+import dao.UserComVTable;
 import handler.Command;
 import handler.Handler;
 import handler.RequestResult;
@@ -270,7 +271,7 @@ public class CompareCitiesWithSelected implements Handler<RequestResult> {
                 .limit(maxResults)
                 .collect(Collectors.toCollection(ArrayList::new));
 
-        BasicVirtualTable<UserCommune> userCommuneBasicVirtualTable = new BasicVirtualTable<>(UserCommune.class);
+        UserComVTable userCommuneBasicVirtualTable = new UserComVTable();
         List<UserCommune> userCommunesA = userCommuneBasicVirtualTable.findAll(
                 command.getUID(), "USER_ID",
                 citycode1, "CODE_INSEE");

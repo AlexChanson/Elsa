@@ -17,9 +17,9 @@ import java.util.stream.Stream;
  * @param <T> The type of the objet held in the table
  */
 public class BasicVirtualTable<T> implements VirtualTable<T>{
-    private final Class myClass;
-    private String tableName;
-    private Constructor myConstructor;
+    protected final Class myClass;
+    protected String tableName;
+    protected Constructor myConstructor;
     private Field key;
     private final String columns;
 
@@ -133,7 +133,7 @@ public class BasicVirtualTable<T> implements VirtualTable<T>{
     public List<T> findAll(Object key1, String colName1, Object key2, String colName2){
         if (key1 == null || key2 == null)
             return null;
-        String query = String.format("SELECT * from %s WHERE (%s = %s OR %s = -1) AND %s = %s ;", tableName, colName1, formatObjToString(key1), colName1, colName2, formatObjToString(key2));
+        String query = String.format("SELECT * from %s WHERE %s = %s AND %s = %s ;", tableName, colName1, formatObjToString(key1), colName2, formatObjToString(key2));
         Object[] params = null;
         List<T> ret = new ArrayList<>();
         try {
@@ -146,10 +146,11 @@ public class BasicVirtualTable<T> implements VirtualTable<T>{
             while (resultSet.next()) {
                 for (int i = 1; i <= paramsNb; ++i)
                     params[i - 1] = resultSet.getObject(i);
-                resultSet.close();
-                statement.close();
+
                 ret.add( (T) myConstructor.newInstance(params));
             }
+            resultSet.close();
+            statement.close();
         }catch (SQLException e){
             e.printStackTrace();
 
@@ -313,7 +314,7 @@ public class BasicVirtualTable<T> implements VirtualTable<T>{
         return builder.toString();
     }
 
-    private static String formatObjToString(Object o){
+    protected static String formatObjToString(Object o){
         return o instanceof String ? "\'" + o + "\'" : o.toString();
     }
 
