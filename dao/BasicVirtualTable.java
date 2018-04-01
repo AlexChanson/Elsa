@@ -110,7 +110,7 @@ public class BasicVirtualTable<T> implements VirtualTable<T>{
     public T find(Object key1, String colName1, Object key2, String colName2){
         if (key1 == null || key2 == null)
             return null;
-        String query = String.format("SELECT * from %s WHERE %s = %s AND %s = %s ;", tableName, colName1, formatObjToString(key2), colName2, formatObjToString(key2));
+        String query = String.format("SELECT * from %s WHERE %s = %s AND %s = %s ;", tableName, colName1, formatObjToString(key1), colName2, formatObjToString(key2));
         Object[] params = null;
         try {
             Statement statement = MYSQL.getConnection().createStatement();
