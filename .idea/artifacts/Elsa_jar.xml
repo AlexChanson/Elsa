@@ -1,0 +1,13 @@
+<component name="ArtifactManager">
+  <artifact name="Elsa:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/Elsa_jar</output-path>
+    <root id="root">
+      <element id="archive" name="Elsa.jar">
+        <element id="module-output" name="Elsa" />
+        <element id="file-copy" path="$PROJECT_DIR$/config.properties" />
+      </element>
+      <element id="library" level="project" name="com.google.code.gson:gson:2.8.2" />
+      <element id="library" level="project" name="mysql:mysql-connector-java:5.1.45" />
+    </root>
+  </artifact>
+</component>

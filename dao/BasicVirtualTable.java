@@ -81,11 +81,40 @@ public class BasicVirtualTable<T> implements VirtualTable<T>{
     public T find(Object key, String colName){
         if (key == null)
             return null;
-        String formatedKey = key instanceof String ? "\'" + key + "\'" : key.toString();
+        String formatedKey = formatObjToString(key);
         Object[] params = null;
         try {
             Statement statement = MYSQL.getConnection().createStatement();
             statement.execute("SELECT * from " + tableName + " WHERE "+colName+" = "+formatedKey+";");
+            ResultSet resultSet = statement.getResultSet();
+            int paramsNb = myConstructor.getParameterCount();
+            params = new Object[paramsNb];
+            if (!resultSet.next())
+                return null;
+            for (int i = 1; i <= paramsNb; ++i)
+                params[i - 1] = resultSet.getObject(i);
+            resultSet.close();
+            statement.close();
+            return (T) myConstructor.newInstance(params);
+
+        }catch (SQLException e){
+            e.printStackTrace();
+            return null;
+        } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
+            System.err.printf("Error on importing %s from %s with parameters (%s).%n", myClass.getSimpleName(), tableName, Arrays.toString(params));
+            return null;
+        }
+
+    }
+
+    public T find(Object key1, String colName1, Object key2, String colName2){
+        if (key1 == null || key2 == null)
+            return null;
+        String query = String.format("SELECT * from %s WHERE %s = %s AND %s = %s ;", tableName, colName1, formatObjToString(key2), colName2, formatObjToString(key2));
+        Object[] params = null;
+        try {
+            Statement statement = MYSQL.getConnection().createStatement();
+            statement.execute(query);
             ResultSet resultSet = statement.getResultSet();
             int paramsNb = myConstructor.getParameterCount();
             params = new Object[paramsNb];
@@ -257,6 +286,10 @@ public class BasicVirtualTable<T> implements VirtualTable<T>{
         });
         builder.setCharAt(builder.lastIndexOf(","), ')');
         return builder.toString();
+    }
+
+    private static String formatObjToString(Object o){
+        return o instanceof String ? "\'" + o + "\'" : o.toString();
     }
 
 
