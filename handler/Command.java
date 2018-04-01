@@ -3,7 +3,7 @@ package handler;
 import java.util.HashMap;
 
 public class Command {
-    String api_key;
+    private int user_id;
     HashMap<String, Object> parameters = new HashMap<>();
 
     public Command() {
@@ -17,7 +17,7 @@ public class Command {
         return parameters;
     }
 
-    public String getApiKey() {
-        return api_key;
+    public int getUID() {
+        return user_id;
     }
 }

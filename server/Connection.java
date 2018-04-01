@@ -1,6 +1,5 @@
 package server;
 
-import beans.Token;
 import beans.User;
 import com.google.gson.Gson;
 import core.RequestMalformedException;
@@ -35,10 +34,8 @@ class Connection implements Runnable {
         }
     }
     private static BasicVirtualTable<User> userTable;
-    private static BasicVirtualTable<Token> tokenTable;
     static {
         userTable = new BasicVirtualTable<>(User.class);
-        tokenTable = new BasicVirtualTable<>(Token.class);
     }
     private static Gson gson = new Gson();
 
@@ -103,12 +100,11 @@ class Connection implements Runnable {
 
     private void handleAPICall() throws IOException {
         // Verify API Key
-        BasicVirtualTable<Token> tok = new BasicVirtualTable<>(Token.class);
         String token = requete.getParameter("key");
-        if (tok.find(token, "token") != null){
+        User user = userTable.find(token, "api_key");
+        if (user != null){
             // Redirect to pipeline
-            String json = String.format("{\"api_key\":\"%s\", \"parameters\" : %s}", token, requete.getBody());
-            //System.out.println(json);
+            String json = String.format("{\"user_id\": %d, \"parameters\" : %s}", user.getUser_id(), requete.getBody());
             Command cmd = gson.fromJson(json, Command.class);
             try {
                 RequestResult result = PipelineFactory.getPipeline().handle(cmd);
@@ -154,8 +150,7 @@ class Connection implements Runnable {
         User jeanPierre = userTable.find(email);
 
         if (jeanPierre != null && Utility.hashSHA256(password).equals(jeanPierre.getPwd_hash())){
-            Token token = tokenTable.find(jeanPierre.getUser_id());
-            String body = "{\"api_key\":\""+token+"\" }";
+            String body = "{\"api_key\":\""+jeanPierre.getApi_key()+"\" }";
             ans.setType(HttpAns._json).setLen(body.length()).setCode(HttpAns._200);
             printResponse(ans.build(), body);
         } else {
@@ -171,17 +166,11 @@ class Connection implements Runnable {
         String nom = params.get("nom");
         String prenom = params.get("prenom");
         String password = params.get("password");
-        System.out.println(params);
 
-        BasicVirtualTable<User> userTable = new BasicVirtualTable<User>(User.class);
-        User jeanPierre = new User(email, nom, prenom, Utility.hashSHA256(password));
+        User jeanPierre = new User(email, nom, prenom, password);
 
         if(userTable.add(jeanPierre)){
-            String api = Utility.hashSHA256(jeanPierre.getEmail());
-            BasicVirtualTable<Token> tokenTable = new BasicVirtualTable<Token>(Token.class);
-            jeanPierre = userTable.find(email);
-            tokenTable.add(new Token(jeanPierre.getUser_id(), api));
-            String body = String.format("{\"status\":\"success\", \"api_key\":\"%s\"}", api);
+            String body = String.format("{\"status\":\"success\", \"api_key\":\"%s\"}", jeanPierre.getApi_key());
             ans.setType(HttpAns._json).setLen(body.length()).setCode(HttpAns._200);
             printResponse(ans.build(), body);
         }else {

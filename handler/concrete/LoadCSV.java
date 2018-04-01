@@ -1,6 +1,5 @@
 package handler.concrete;
 
-import beans.Token;
 import beans.UserCommune;
 import core.RequestMalformedException;
 import dao.BasicVirtualTable;
@@ -22,7 +21,7 @@ public class LoadCSV implements Handler<RequestResult> {
     private RequestResult process(Command c) throws RequestMalformedException{
         if (c.getParameter("csv") == null)
             throw new RequestMalformedException();
-        final int userID = (int) (new BasicVirtualTable<Token>(Token.class)).find(c.getApiKey(), "token").getUser_id();
+        final int userID = c.getUID();
         Collection<String> lines = (Collection<String>) c.getParameter("csv");
         BasicVirtualTable<UserCommune> destination = new BasicVirtualTable<>(UserCommune.class);
         int i = 0;

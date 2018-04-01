@@ -19,11 +19,11 @@ import java.util.stream.Stream;
  * @param <T> The type of the objet held in the table
  */
 public class BasicVirtualTable<T> implements VirtualTable<T>{
-    private Class myClass;
+    private final Class myClass;
     private String tableName;
     private Constructor myConstructor;
     private Field key;
-    private String columns;
+    private final String columns;
 
     public BasicVirtualTable(Class targeted) {
         myClass = targeted;
@@ -140,6 +140,11 @@ public class BasicVirtualTable<T> implements VirtualTable<T>{
         return true;
     }
 
+    /**
+     * More efficient insertion method requires implementation of @DBBean
+     * @param bean an object of type T implementing the interface
+     * @return success status of the insertion
+     */
     public boolean addBean(DBBean bean){
         String query = String.format("INSERT INTO %s %s VALUES (%s);", tableName, columns, bean.insertToString());
         try {
