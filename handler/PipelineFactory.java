@@ -18,7 +18,7 @@ public class PipelineFactory {
         staticDispatch.registerHandler("getDepartements", new GetDepartements());
         staticDispatch.registerHandler("getCityNames", new GetCityNames());
         staticDispatch.registerHandler("compareCities", new CompareCities());
-        staticDispatch.registerHandler("compareCitiesWithSelected", new CompareCitiesWithSelected());
+        staticDispatch.registerHandler("compareCitiesWithSelected", new CompareCitiesWithSelected(5));
         staticDispatch.registerHandler("loadCSV", new LoadCSV());
     }
 
