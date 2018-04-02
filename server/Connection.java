@@ -107,9 +107,9 @@ class Connection implements Runnable {
         User user = userTable.find(token, "api_key");
         if (user != null){
             // Redirect to pipeline
-            String json = String.format("{\"user_id\": %d, \"parameters\" : %s}", user.getUser_id(), requete.getBody());
-            Command cmd = gson.fromJson(json, Command.class);
             try {
+                String json = String.format("{\"user_id\": %d, \"parameters\" : %s}", user.getUser_id(), requete.getBody());
+                Command cmd = gson.fromJson(json, Command.class);
                 RequestResult result = PipelineFactory.getPipeline().handle(cmd);
                 if (requete.supportsGzip()){
                     byte[] data = Utility.compress(result.toJson());
