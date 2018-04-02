@@ -38,6 +38,7 @@ class Connection implements Runnable {
         userTable = new BasicVirtualTable<>(User.class);
     }
     private static Gson gson = new Gson();
+    private static String _404 = "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"UTF-8\"><title>Page Not Found</title></head><body><h1>Erreur 404</h1><h2>Elsa n'a pas trouvée la page demandée !</h2><img src=\"https://media.giphy.com/media/xSlfy3sa3ecEw/giphy.gif\"></body></html>";
 
     private Socket socket;
     private OutputStream out;
@@ -78,6 +79,8 @@ class Connection implements Runnable {
                         (new FileInputStream(path)).transferTo(out);
                     else
                         out.write(compressed);
+                }else {
+                    out.write(_404.getBytes());
                 }
 
             } else if (requete.isPost()){
