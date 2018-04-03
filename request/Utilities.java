@@ -38,9 +38,15 @@ public class Utilities {
         commStringGetters = new HashMap<>();
         commStringGetters.put("code_insee", Commune::getCode_insee);
         commStringGetters.put("num_dep", Commune::getNum_dep);
-        commStringGetters.put("ev_pop", Commune::getEvolution_pop);
-        commStringGetters.put("env_demo", Commune::getEnv_demo);
-        commStringGetters.put("fidelite", Commune::getFidelite);
+        commStringGetters.put("ev_pop", combine(Commune::getEvolution_pop,String::toLowerCase));
+        commStringGetters.put("env_demo", combine(Commune::getEnv_demo, String::toLowerCase));
+        commStringGetters.put("fidelite", combine(Commune::getFidelite, String::toLowerCase));
+    }
+
+    public static <T1, T2, T3> Function<T1, T3> combine(
+            Function<T1, T2> first,
+            Function<T2, T3> second) {
+        return first.andThen(second);
     }
 
     public static Function<Commune, Long> intToLongGetter(Function<Commune, Integer> f){
@@ -168,11 +174,13 @@ public class Utilities {
 
             boolean isNumber = true;
 
+            // remove quotes for strings
             if (val.startsWith("\"") || val.startsWith("'")){
                 isNumber = false;
-                val = val.substring(1,val.length()-1);
+                val = val.substring(1,val.length()-1).toLowerCase(); // set value to lowercase
             }
 
+            // check for floating number
             boolean isFloating = val.contains(".");
 
             if (isNumber ){

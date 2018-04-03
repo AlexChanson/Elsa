@@ -144,13 +144,9 @@ public class CompareCitiesWithSelected implements Handler<RequestResult> {
     @Override
     public RequestResult handle(Command command) throws RequestMalformedException {
 
-        //System.out.println("Handling 2 cities comparison with filtered request...");
-
         String citycode1 = (String) command.getParameter("commune1");
         String citycode2 = (String) command.getParameter("commune2");
 
-        //System.out.println("city1: "+citycode1);
-        //System.out.println("city2: "+citycode2);
 
         if (citycode1 == null){
             throw new RequestMalformedException("missing argument: commune1");
@@ -180,24 +176,25 @@ public class CompareCitiesWithSelected implements Handler<RequestResult> {
             throw new RequestMalformedException("commune2 not found");
         }
 
+        // parse strings into predicates
         Stream<Predicate<ComDepReg>> sp = filters.stream().map(x -> Utilities.parsePredicate(x));
-
         ArrayList<Predicate<ComDepReg>> predsList = new ArrayList<>();
         int i = 0;
         for (Predicate<ComDepReg> pred: (Iterable<Predicate<ComDepReg>>) sp::iterator) {
+            // check for parsing problem
             if (pred == null){
                 throw new RequestMalformedException("error in filters for filter: '" + filters.get(i) +"'");
             }
             predsList.add(pred);
             i++;
         }
-
+        // turn multiple predicates into one
         Predicate<ComDepReg> finalPred = Utilities.predicateAndSum(predsList);
-
 
 
         CitySimilarity cs = new CitySimilarity();
 
+        // get tuples then filter then calculate 2 similarity scores
         ArrayList<DoubleComparisonResult> filtered = bvt
                 .getStream()
                 .filter(x -> !(x.getCode_insee().equals(citycode1) || x.getCode_insee().equals(citycode2)) )
@@ -207,6 +204,8 @@ public class CompareCitiesWithSelected implements Handler<RequestResult> {
                         cs.calculateDistance(x.getCommune(), cityB.getCommune()), x))
                 .collect(Collectors.toCollection(ArrayList::new));
 
+
+        // count everything
         long filteredNb = filtered.size();
 
         long tot_nb_pop_2015 = 0;
@@ -239,26 +238,49 @@ public class CompareCitiesWithSelected implements Handler<RequestResult> {
             tot_actifs_nonsal2015 += c.getNb_actifs_nonSal_2015();
         }
 
-        Means means = new Means(
-                filteredNb,
-                (double)tot_nb_pop_2015/filteredNb,
-                (double)tot_nb_etablissement/filteredNb,
-                (double)tot_nb_actifs2010/filteredNb,
-                (double)tot_dyn_demo_insee/filteredNb,
-                (double)tot_indice_demo/filteredNb,
-                (double)tot_nb_actifs2015/filteredNb,
-                (double)tot_nb_etudiants/filteredNb,
-                tot_score_urbanite/filteredNb,
-                tot_superficie/filteredNb,
-                tot_score_croissance_pop/filteredNb,
-                (double)tot_actifs_sal2015/filteredNb,
-                (double)tot_actifs_nonsal2015/filteredNb
-        );
+        // calculating means
+        Means means = null;
+        if (filteredNb > 0){
+            means = new Means(
+                    filteredNb,
+                    (double)tot_nb_pop_2015/filteredNb,
+                    (double)tot_nb_etablissement/filteredNb,
+                    (double)tot_nb_actifs2010/filteredNb,
+                    (double)tot_dyn_demo_insee/filteredNb,
+                    (double)tot_indice_demo/filteredNb,
+                    (double)tot_nb_actifs2015/filteredNb,
+                    (double)tot_nb_etudiants/filteredNb,
+                    tot_score_urbanite/filteredNb,
+                    tot_superficie/filteredNb,
+                    tot_score_croissance_pop/filteredNb,
+                    (double)tot_actifs_sal2015/filteredNb,
+                    (double)tot_actifs_nonsal2015/filteredNb
+            );
+        }
+        else {
+            means = new Means(
+                    filteredNb,
+                    (double)tot_nb_pop_2015,
+                    (double)tot_nb_etablissement,
+                    (double)tot_nb_actifs2010,
+                    (double)tot_dyn_demo_insee,
+                    tot_indice_demo,
+                    (double)tot_nb_actifs2015,
+                    (double)tot_nb_etudiants,
+                    tot_score_urbanite,
+                    tot_superficie,
+                    tot_score_croissance_pop,
+                    (double)tot_actifs_sal2015,
+                    (double)tot_actifs_nonsal2015
+            );
+        }
 
 
+        // number of results by region
         Map<Integer, Long> countByRegion = filtered.stream()
                 .collect(Collectors.groupingBy(x -> x.getComDepReg().getNum_reg(), Collectors.counting()));
 
+        // calculating similarity lists
         ArrayList<ComparisonResult> withCityA = filtered.stream()
                 .map(x -> new ComparisonResult(x.similarityToA, x.getComDepReg()))
                 .sorted(Comparator.comparingDouble(ComparisonResult::getSimilarity))
@@ -271,6 +293,8 @@ public class CompareCitiesWithSelected implements Handler<RequestResult> {
                 .limit(maxResults)
                 .collect(Collectors.toCollection(ArrayList::new));
 
+
+        // accessing user data
         UserComVTable userCommuneBasicVirtualTable = new UserComVTable();
         List<UserCommune> userCommunesA = userCommuneBasicVirtualTable.findAll(
                 command.getUID(), "USER_ID",
@@ -280,6 +304,7 @@ public class CompareCitiesWithSelected implements Handler<RequestResult> {
                 command.getUID(), "USER_ID",
                 citycode2, "CODE_INSEE");
 
+        // translating to json
         String result = Utility.gson.toJson(
                 new FinalResult(withCityA,
                                 withCityB,
