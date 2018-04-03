@@ -14,9 +14,11 @@ import java.util.regex.Pattern;
 
 public class Utilities {
 
+    // pattern for a string predicate
     public final static Pattern predPattern = Pattern.compile(
             "\\s*([a-zA-Z_][a-zA-Z0-9_]*)\\s*(=|==|<=|>=|>|<|!=|/=)\\s*('[^\"']*'|\"[^\"']*\"|[0-9]+\\.[0-9]+|[0-9]+)\\s*");
 
+    // all the getters mapped from their name in JSON to their name in beans (for obfuscation and simplicity)
     private static HashMap<String, Function<Commune, Double>> commDoubleGetters;
     private static HashMap<String, Function<Commune, Long>> commLongGetters;
     private static HashMap<String, Function<Commune, String>> commStringGetters;
@@ -43,16 +45,35 @@ public class Utilities {
         commStringGetters.put("fidelite", combine(Commune::getFidelite, String::toLowerCase));
     }
 
+    /**
+     * workaround:
+     *   Commune::getXXX.andThen(String::toLowerCase)
+     * doesn't compile but
+     *   combine(Commune::getXXX, String::toLowerCase)
+     * does.
+     * @param first first function
+     * @param second second function
+     * @param <T1>
+     * @param <T2>
+     * @param <T3>
+     * @return first.andThen(second)
+     */
     public static <T1, T2, T3> Function<T1, T3> combine(
             Function<T1, T2> first,
             Function<T2, T3> second) {
         return first.andThen(second);
     }
 
+    /**
+     * @param f commune getter of type int
+     * @return commune getter of type long (conversion)
+     */
     public static Function<Commune, Long> intToLongGetter(Function<Commune, Integer> f){
         return x -> Long.valueOf(f.apply(x));
     }
 
+
+    // necessary for operator overloading
     public static Function<Commune, Double> doubleCommuneGetter(String attribute){
         if (attribute == null){
             return null;
@@ -79,6 +100,8 @@ public class Utilities {
         return null;
     }
 
+
+    // necessary for operator overloading
     public static <T, V> Predicate<T> makeEqualPredicate(Function<T, V> getter, V val ){
         return x -> getter.apply(x).equals(val);
     }
@@ -99,6 +122,16 @@ public class Utilities {
         return x -> getter.apply(x) > val;
     }
 
+
+
+    /**
+     * @param op string operator
+     * @param getter getter function
+     * @param val a value that can be tested for value equality
+     * @param <T> type of the getter source
+     * @param <V> type of the getter return type and value type
+     * @return
+     */
     public static <T, V> Predicate<T> predicateOperator(String op,
                                                         Function<T, V> getter,
                                                         V val){
@@ -113,6 +146,13 @@ public class Utilities {
         return null;
     }
 
+    /**
+     * @param op string operator
+     * @param getter function getter
+     * @param val value (long)
+     * @param <T> type of the getter
+     * @return predicate of type T
+     */
     public static <T> Predicate<T> predicateOperator(String op,
                                                         Function<T, Long> getter,
                                                         long val){
@@ -136,6 +176,13 @@ public class Utilities {
         }
     }
 
+    /**
+     * @param op string operator
+     * @param getter function getter
+     * @param val value (double)
+     * @param <T> type of the getter
+     * @return predicate of type T
+     */
     public static <T> Predicate<T> predicateOperator(String op,
                                                      Function<T, Double> getter,
                                                      double val){
@@ -163,6 +210,10 @@ public class Utilities {
         return x -> pred.test(x.getCommune());
     }
 
+    /**
+     * @param pred a string predicate for our database
+     * @return a parsed predicate or null if attribute is unknown
+     */
     public static Predicate<ComDepReg> parsePredicate(String pred){
 
         Matcher m = predPattern.matcher(pred);
