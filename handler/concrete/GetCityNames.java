@@ -24,7 +24,7 @@ public class GetCityNames implements Handler<RequestResult>{
     private RequestResult process() {
 
         BasicVirtualTable<Commune> bvt = new BasicVirtualTable<>(Commune.class);
-        List<CommuneSimple> communeSimples = bvt.getStream().map(x -> new CommuneSimple(x)).collect(Collectors.toList());
+        List<CommuneSimple> communeSimples = bvt.getStream().map(CommuneSimple::new).collect(Collectors.toList());
         String buffer = Utility.gson.toJson(communeSimples);
         return new RequestResult() {
             @Override
