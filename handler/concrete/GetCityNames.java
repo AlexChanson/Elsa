@@ -11,6 +11,7 @@ import handler.Utility;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class GetCityNames implements Handler<RequestResult>{
     @Override
@@ -21,9 +22,9 @@ public class GetCityNames implements Handler<RequestResult>{
     }
 
     private RequestResult process() {
-        List<CommuneSimple> communeSimples = new ArrayList<>();
-        (new BasicVirtualTable<Commune>(Commune.class))
-                .getStream().forEach(commune -> communeSimples.add(new CommuneSimple(commune)));
+
+        BasicVirtualTable<Commune> bvt = new BasicVirtualTable<>(Commune.class);
+        List<CommuneSimple> communeSimples = bvt.getStream().map(x -> new CommuneSimple(x)).collect(Collectors.toList());
         String buffer = Utility.gson.toJson(communeSimples);
         return new RequestResult() {
             @Override
