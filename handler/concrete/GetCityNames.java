@@ -23,7 +23,7 @@ public class GetCityNames implements Handler<RequestResult>{
     private RequestResult process() {
         List<CommuneSimple> communeSimples = new ArrayList<>();
         (new BasicVirtualTable<Commune>(Commune.class))
-                .getAll().forEach(commune -> communeSimples.add(new CommuneSimple(commune)));
+                .getStream().forEach(commune -> communeSimples.add(new CommuneSimple(commune)));
         String buffer = Utility.gson.toJson(communeSimples);
         return new RequestResult() {
             @Override
