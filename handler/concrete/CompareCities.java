@@ -27,13 +27,13 @@ public class CompareCities implements Handler<RequestResult> {
     @Override
     public RequestResult handle(Command command) throws RequestMalformedException {
 
-        System.out.println("Handling 2 cities comparison request...");
+        //System.out.println("Handling 2 cities comparison request...");
 
         String citycode1 = (String) command.getParameter("commune1");
         String citycode2 = (String) command.getParameter("commune2");
 
-        System.out.println("city1: "+citycode1);
-        System.out.println("city2: "+citycode2);
+        //System.out.println("city1: "+citycode1);
+        //System.out.println("city2: "+citycode2);
 
         if (citycode1 == null){
             throw new RequestMalformedException("missing argument: commune1");

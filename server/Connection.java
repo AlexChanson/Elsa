@@ -97,6 +97,7 @@ class Connection implements Runnable {
             // Close connection
             socket.close();
         } catch (IOException e) {
+            System.out.println("--- SOCKET EXCEPTION ---");
             e.printStackTrace();
         }
     }
@@ -108,7 +109,8 @@ class Connection implements Runnable {
         if (user != null){
             // Redirect to pipeline
             try {
-                String json = String.format("{\"user_id\": %d, \"parameters\" : %s}", user.getUser_id(), requete.getBody());
+                String json = String.format("{\"user_id\": %d, \"parameters\" : %s}", user.getUser_id(), requete.getBody()).replace("\0", "");
+                System.out.println(json);
                 Command cmd = gson.fromJson(json, Command.class);
                 RequestResult result = PipelineFactory.getPipeline().handle(cmd);
                 if (requete.supportsGzip()){
