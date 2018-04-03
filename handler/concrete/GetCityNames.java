@@ -34,6 +34,7 @@ public class GetCityNames implements Handler<RequestResult>{
         writer.beginArray();
         bvt.getStream().forEach(comm -> Utility.gson.toJson(comm, CommuneSimple.class, writer));
         writer.endArray();
+        writer.close();
         String buffer = new String(out.toByteArray());
         return new RequestResult() {
             @Override
