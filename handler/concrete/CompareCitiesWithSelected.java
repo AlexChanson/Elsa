@@ -21,6 +21,9 @@ import java.util.stream.Stream;
 public class CompareCitiesWithSelected implements Handler<RequestResult> {
 
     private final int maxResults;
+    private final double[] quantiles;
+
+    public final static double[] classicQuantiles = {0.25,0.5,0.75};
 
     public class DoubleComparisonResult{
         private final double similarityToA;
@@ -118,6 +121,10 @@ public class CompareCitiesWithSelected implements Handler<RequestResult> {
         private final Means means;
         private final List<UserCommune> userCommunesA;
         private final List<UserCommune> userCommunesB;
+        private final double[] quantileUsed;
+        private final long[] quantileValues;
+        private final long min_nb_inst_pub;
+        private final long max_nb_inst_pub;
 
         public FinalResult(ArrayList<ComparisonResult> withA,
                            ArrayList<ComparisonResult> withB,
@@ -125,7 +132,11 @@ public class CompareCitiesWithSelected implements Handler<RequestResult> {
                            ComDepReg cityB,
                            Map<Integer, Long> countByRegion,
                            Means means, List<UserCommune> userCommunesA,
-                           List<UserCommune> userCommunesB) {
+                           List<UserCommune> userCommunesB,
+                           double[] quantileUsed,
+                           long[] quantileValues,
+                           long min_nb_inst_pub,
+                           long max_nb_inst_pub) {
             this.withA = withA;
             this.withB = withB;
             this.cityA = cityA;
@@ -134,11 +145,16 @@ public class CompareCitiesWithSelected implements Handler<RequestResult> {
             this.means = means;
             this.userCommunesA = userCommunesA;
             this.userCommunesB = userCommunesB;
+            this.quantileUsed = quantileUsed;
+            this.quantileValues = quantileValues;
+            this.min_nb_inst_pub = min_nb_inst_pub;
+            this.max_nb_inst_pub = max_nb_inst_pub;
         }
     }
 
-    public CompareCitiesWithSelected(int maxResults) {
+    public CompareCitiesWithSelected(int maxResults, double[] quantiles) {
         this.maxResults = maxResults;
+        this.quantiles = quantiles;
     }
 
     @Override
@@ -204,9 +220,25 @@ public class CompareCitiesWithSelected implements Handler<RequestResult> {
                         cs.calculateDistance(x.getCommune(), cityB.getCommune()), x))
                 .collect(Collectors.toCollection(ArrayList::new));
 
-
         // count everything
         long filteredNb = filtered.size();
+
+        // get a sorted array of numbers of public institutions
+        long[] nbs_inst_pub = filtered.parallelStream()
+                .map(x -> x.getComDepReg().getNb_inst_pub())
+                .mapToLong(x -> x)
+                .sorted()
+                .toArray();
+
+        long min_nb_inst_pub = Arrays.stream(nbs_inst_pub).min().orElse(0);
+        long max_nb_inst_pub = Arrays.stream(nbs_inst_pub).max().orElse(0);
+
+        long[] quantilesValues = new long[this.quantiles.length];
+
+        // calculate quantileValue for each quantile specified
+        for (i = 0; i < quantilesValues.length; ++i){
+            quantilesValues[i] = nbs_inst_pub[(int) (nbs_inst_pub.length*this.quantiles[i])];
+        }
 
         long tot_nb_pop_2015 = 0;
         long tot_nb_etablissement = 0;
@@ -313,7 +345,11 @@ public class CompareCitiesWithSelected implements Handler<RequestResult> {
                                 countByRegion,
                                 means,
                                 userCommunesA,
-                                userCommunesB));
+                                userCommunesB,
+                                quantiles,
+                                quantilesValues,
+                                min_nb_inst_pub,
+                                max_nb_inst_pub));
 
         return new RequestResult() {
             @Override
