@@ -240,7 +240,7 @@ public class CompareCitiesWithSelected implements Handler<RequestResult> {
 
         // calculate quantileValue for each quantile specified
         for (i = 0; i < quantilesValues.length; ++i){
-            int index = (int) Math.max(0,Math.min(nbs_inst_pub.length*this.quantiles[i], quantilesValues.length-1));
+            int index = Math.max(0,Math.min((int) (nbs_inst_pub.length*this.quantiles[i]), nbs_inst_pub.length-1));
             quantilesValues[i] = nbs_inst_pub[index];
         }
 
