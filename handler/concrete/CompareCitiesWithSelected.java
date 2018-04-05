@@ -239,9 +239,12 @@ public class CompareCitiesWithSelected implements Handler<RequestResult> {
         long[] quantilesValues = new long[this.quantiles.length];
 
         // calculate quantileValue for each quantile specified
-        for (i = 0; i < quantilesValues.length; ++i){
-            int index = Math.max(0,Math.min((int) (nbs_inst_pub.length*this.quantiles[i]), nbs_inst_pub.length-1));
-            quantilesValues[i] = nbs_inst_pub[index];
+        if (nbs_inst_pub.length > 0){
+            for (i = 0; i < quantilesValues.length; ++i){
+                int index = Math.max(0,Math.min((int) (nbs_inst_pub.length*this.quantiles[i]), nbs_inst_pub.length-1));
+                long v = nbs_inst_pub[index];
+                quantilesValues[i] = v;
+            }
         }
 
         long tot_nb_pop_2015 = 0;
