@@ -211,14 +211,17 @@ public class CompareCitiesWithSelected implements Handler<RequestResult> {
         CitySimilarity cs = new CitySimilarity();
 
         // get tuples then filter then calculate 2 similarity scores
-        ArrayList<DoubleComparisonResult> filtered = bvt
-                .getStream()
-                .filter(x -> !(x.getCode_insee().equals(citycode1) || x.getCode_insee().equals(citycode2)) )
-                .filter(finalPred)
-                .map(x -> new DoubleComparisonResult(
-                        cs.calculateDistance(x.getCommune(), cityA.getCommune()),
-                        cs.calculateDistance(x.getCommune(), cityB.getCommune()), x))
-                .collect(Collectors.toCollection(ArrayList::new));
+        ArrayList<DoubleComparisonResult> filtered = null;
+        try (Stream<ComDepReg> comDepRegStream = bvt.getStream()){
+            filtered = comDepRegStream
+                    .filter(x -> !(x.getCode_insee().equals(citycode1) || x.getCode_insee().equals(citycode2)) )
+                    .filter(finalPred)
+                    .map(x -> new DoubleComparisonResult(
+                            cs.calculateDistance(x.getCommune(), cityA.getCommune()),
+                            cs.calculateDistance(x.getCommune(), cityB.getCommune()), x))
+                    .collect(Collectors.toCollection(ArrayList::new));
+        }
+
 
         // count everything
         long filteredNb = filtered.size();
