@@ -25,9 +25,9 @@ public class CitySimilarity {
         divisor = Math.max(commune1.getNb_etudiants(), commune2.getNb_etudiants());
         double nbEtuDist = divisor == 0? 0 : Math.pow((commune1.getNb_etudiants()-commune2.getNb_etudiants())/divisor,2);
 
-        double evPopDist = commune1.getEvolution_pop().equals(commune2.getEvolution_pop())? 0.8 : 1.0;
+        double evPopDist = commune1.getEvolution_pop().equals(commune2.getEvolution_pop())? 0.0 : 1.0;
 
-        double fideliteDist = commune1.getFidelite().equals(commune2.getFidelite())? 0.8 : 1.0;
+        double fideliteDist = commune1.getFidelite().equals(commune2.getFidelite())? 0.0 : 1.0;
 
         divisor = Math.max(commune1.getScore_urbanite(), commune2.getScore_urbanite());
         double urbaniteDist = divisor == 0? 0 : Math.pow((commune1.getScore_urbanite()-commune2.getScore_urbanite())/
