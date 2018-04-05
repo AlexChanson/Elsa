@@ -77,10 +77,12 @@ public class BasicVirtualTable<T> implements VirtualTable<T>{
             return null;
         String formatedKey = formatObjToString(key);
         Object[] params = null;
+        Statement statement = null;
+        ResultSet resultSet = null;
         try {
-            Statement statement = MYSQL.getConnection().createStatement();
+            statement = MYSQL.getConnection().createStatement();
             statement.execute("SELECT * from " + tableName + " WHERE "+colName+" = "+formatedKey+";");
-            ResultSet resultSet = statement.getResultSet();
+            resultSet = statement.getResultSet();
             int paramsNb = myConstructor.getParameterCount();
             params = new Object[paramsNb];
             if (!resultSet.next())
@@ -97,6 +99,14 @@ public class BasicVirtualTable<T> implements VirtualTable<T>{
         } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
             System.err.printf("Error on importing %s from %s with parameters (%s).%n", myClass.getSimpleName(), tableName, Arrays.toString(params));
             return null;
+        }
+        finally {
+            try {
+                resultSet.close();
+                statement.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
 
     }
@@ -278,7 +288,7 @@ public class BasicVirtualTable<T> implements VirtualTable<T>{
             statement.setFetchSize(50);
             statement.execute("SELECT * from " + tableName + ";");
             ResultSet resultSet = statement.getResultSet();
-            return new ResultSetIterable<T>(resultSet, onNext).stream();
+            return new ResultSetIterable<T>(resultSet, onNext, statement).stream();
         } catch (SQLException e){
             e.printStackTrace();
             return new ArrayList<T>().stream();
