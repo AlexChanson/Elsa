@@ -26,9 +26,11 @@ public class LoadCSV implements Handler<RequestResult> {
         BasicVirtualTable<UserCommune> destination = new BasicVirtualTable<>(UserCommune.class);
         int i = 0;
         for (String line : lines) {
-            String[] e = line.split(";");
-            if (!destination.addBean(new UserCommune(e[0], userID, parseInt(e[1]), parseInt(e[2]), parseInt(e[3]), parseInt(e[4]))))
-                i++;
+            if(!line.equals("")){
+                String[] e = line.split(";");
+                if (!destination.addBean(new UserCommune(e[0], userID, parseInt(e[1]), parseInt(e[2]), parseInt(e[3]), parseInt(e[4]))))
+                    i++;
+            }
         }
         final int temp = i;
         return new RequestResult() {
